@@ -1,14 +1,33 @@
 
 import { Video } from '../types';
+import { Edit, Trash2 } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface VideoCardProps {
   video: Video;
   onClick: (video: Video) => void;
+  onEdit?: (video: Video) => void;
+  onDelete?: (video: Video) => void;
 }
 
-const VideoCard = ({ video, onClick }: VideoCardProps) => {
-  const handleClick = () => {
+const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
+  const { isAuthenticated } = useAuth();
+
+  const handleClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.action-button')) {
+      return;
+    }
     onClick(video);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(video);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(video);
   };
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -17,7 +36,7 @@ const VideoCard = ({ video, onClick }: VideoCardProps) => {
 
   return (
     <div 
-      className="glass-card overflow-hidden cursor-pointer smooth-transition hover-glow press-effect animate-fade-up"
+      className="glass-card overflow-hidden cursor-pointer smooth-transition hover:shadow-lg press-effect animate-fade-up"
       onClick={handleClick}
       style={{ aspectRatio: '1080/1350' }}
     >
@@ -30,6 +49,25 @@ const VideoCard = ({ video, onClick }: VideoCardProps) => {
         />
         
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        
+        {isAuthenticated && (
+          <div className="absolute top-2 right-2 flex gap-2">
+            <button
+              onClick={handleEdit}
+              className="action-button glass p-1.5 smooth-transition hover:shadow-lg press-effect"
+              aria-label="Edit video"
+            >
+              <Edit className="w-3 h-3 text-white" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="action-button glass p-1.5 smooth-transition hover:shadow-lg press-effect"
+              aria-label="Delete video"
+            >
+              <Trash2 className="w-3 h-3 text-white" />
+            </button>
+          </div>
+        )}
         
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="glass rounded-xl p-3 space-y-2">

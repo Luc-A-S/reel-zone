@@ -27,6 +27,18 @@ export class VideoService {
     return newVideo;
   }
 
+  static updateVideo(id: string, updates: Partial<Omit<Video, 'id' | 'created_at'>>): boolean {
+    const videos = this.getVideos();
+    const index = videos.findIndex(v => v.id === id);
+    
+    if (index !== -1) {
+      videos[index] = { ...videos[index], ...updates };
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(videos));
+      return true;
+    }
+    return false;
+  }
+
   static deleteVideo(id: string): boolean {
     const videos = this.getVideos();
     const filtered = videos.filter(v => v.id !== id);
@@ -41,5 +53,17 @@ export class VideoService {
   static getVideoById(id: string): Video | null {
     const videos = this.getVideos();
     return videos.find(v => v.id === id) || null;
+  }
+
+  static searchVideos(searchTerm: string): Video[] {
+    const videos = this.getVideos();
+    if (!searchTerm.trim()) return videos;
+    
+    const term = searchTerm.toLowerCase();
+    return videos.filter(video => 
+      video.title.toLowerCase().includes(term) ||
+      video.description.toLowerCase().includes(term) ||
+      video.tags.some(tag => tag.toLowerCase().includes(term))
+    );
   }
 }
