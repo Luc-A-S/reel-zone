@@ -1,8 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import VideoCard from '../components/VideoCard';
-import HeroSection from '../components/HeroSection';
 import LoginModal from '../components/LoginModal';
 import AddVideoModal from '../components/AddVideoModal';
 import EmptyState from '../components/EmptyState';
@@ -119,10 +119,6 @@ const Index = () => {
     setEditingVideo(null);
   };
 
-  // Get featured video (first video) and remaining videos
-  const featuredVideo = filteredVideos[0];
-  const remainingVideos = filteredVideos.slice(1);
-
   return (
     <div className="min-h-screen pb-12">
       <TopBar 
@@ -136,53 +132,38 @@ const Index = () => {
         currentOrder={currentOrder}
       />
       
-      {filteredVideos.length === 0 ? (
-        <div className="px-6 mt-12">
+      <div className="px-6 mt-12">
+        {filteredVideos.length === 0 ? (
           <EmptyState />
-        </div>
-      ) : (
-        <>
-          {/* Hero Section - Featured Content */}
-          {featuredVideo && (
-            <HeroSection
-              video={featuredVideo}
-              onPlay={handleVideoClick}
-              onEdit={handleEditVideo}
-              onDelete={handleDeleteVideo}
-            />
-          )}
-          
-          {/* Remaining Videos Grid */}
-          {remainingVideos.length > 0 && (
-            <div className="px-6 mt-16">
-              <div className="max-w-7xl mx-auto mb-8">
-                <h2 className="text-3xl font-bold text-foreground mb-2">
-                  Mais <span className="neon-text">Conteúdos</span>
-                </h2>
-                <p className="text-muted-foreground font-medium">
-                  Continue explorando nossa seleção de conteúdos
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                {remainingVideos.map((video, index) => (
-                  <div
-                    key={video.id}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <VideoCard
-                      video={video}
-                      onClick={handleVideoClick}
-                      onEdit={handleEditVideo}
-                      onDelete={handleDeleteVideo}
-                    />
-                  </div>
-                ))}
-              </div>
+        ) : (
+          <>
+            <div className="max-w-7xl mx-auto mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-2">
+                Conteúdo em <span className="neon-text">Destaque</span>
+              </h2>
+              <p className="text-muted-foreground font-medium">
+                Descubra conteúdos incríveis selecionados especialmente para você
+              </p>
             </div>
-          )}
-        </>
-      )}
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+              {filteredVideos.map((video, index) => (
+                <div
+                  key={video.id}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <VideoCard
+                    video={video}
+                    onClick={handleVideoClick}
+                    onEdit={handleEditVideo}
+                    onDelete={handleDeleteVideo}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
 
       <LoginModal 
         isOpen={isLoginModalOpen}
