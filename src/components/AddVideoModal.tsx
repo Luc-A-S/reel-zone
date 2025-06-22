@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
 import { VideoService } from '../services/VideoService';
@@ -14,21 +15,24 @@ interface AddVideoModalProps {
 const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingVideo }: AddVideoModalProps) => {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
-  const [thumbnail, setThumbnail] = useState('');
-  const [category, setCategory] = useState('');
+  const [cover, setCover] = useState('');
+  const [description, setDescription] = useState('');
+  const [tags, setTags] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (editingVideo) {
       setTitle(editingVideo.title);
       setUrl(editingVideo.url);
-      setThumbnail(editingVideo.thumbnail);
-      setCategory(editingVideo.category);
+      setCover(editingVideo.cover);
+      setDescription(editingVideo.description);
+      setTags(editingVideo.tags.join(', '));
     } else {
       setTitle('');
       setUrl('');
-      setThumbnail('');
-      setCategory('');
+      setCover('');
+      setDescription('');
+      setTags('');
     }
   }, [editingVideo]);
 
@@ -39,8 +43,9 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
     const videoData = {
       title,
       url,
-      thumbnail,
-      category,
+      cover,
+      description,
+      tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
     };
 
     try {
@@ -66,7 +71,7 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       <div className="glass-modal p-6 w-full max-w-md animate-scale-in">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Plus className="w-5 h-5 text-primary" />
+            <Plus className="w-5 h-5 text-accent" />
             <h2 className="text-xl font-semibold">
               {editingVideo ? 'Editar Conteúdo' : 'Adicionar Conteúdo'}
             </h2>
@@ -89,7 +94,7 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
+              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
               placeholder="Digite o título do conteúdo"
               required
             />
@@ -104,54 +109,60 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
+              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
               placeholder="https://youtube.com/watch?v=..."
               required
             />
           </div>
 
           <div>
-            <label htmlFor="thumbnail" className="block text-sm font-medium mb-2">
-              URL da Miniatura
+            <label htmlFor="cover" className="block text-sm font-medium mb-2">
+              URL da Capa
             </label>
             <input
-              id="thumbnail"
+              id="cover"
               type="url"
-              value={thumbnail}
-              onChange={(e) => setThumbnail(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
+              value={cover}
+              onChange={(e) => setCover(e.target.value)}
+              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
               placeholder="https://exemplo.com/imagem.jpg"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium mb-2">
-              Categoria
+            <label htmlFor="description" className="block text-sm font-medium mb-2">
+              Descrição
             </label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              placeholder="Descreva o conteúdo do vídeo"
+              rows={3}
               required
-            >
-              <option value="">Selecione uma categoria</option>
-              <option value="Entretenimento">Entretenimento</option>
-              <option value="Educação">Educação</option>
-              <option value="Música">Música</option>
-              <option value="Esportes">Esportes</option>
-              <option value="Tecnologia">Tecnologia</option>
-              <option value="Culinária">Culinária</option>
-              <option value="Viagem">Viagem</option>
-              <option value="Outros">Outros</option>
-            </select>
+            />
+          </div>
+
+          <div>
+            <label htmlFor="tags" className="block text-sm font-medium mb-2">
+              Tags (separadas por vírgula)
+            </label>
+            <input
+              id="tags"
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              placeholder="tecnologia, educação, música"
+            />
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50"
+            className="w-full bg-accent text-background py-3 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50"
           >
             {isLoading ? 
               (editingVideo ? 'Atualizando...' : 'Publicando...') : 
