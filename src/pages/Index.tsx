@@ -117,26 +117,22 @@ const Index = () => {
   };
 
   const handleDeleteVideo = (video: Video) => {
-    if (window.confirm(`Tem certeza que deseja excluir "${video.title}"?`)) {
-      if (VideoService.deleteVideo(video.id)) {
-        loadVideos();
-        toast({
-          title: "Sucesso!",
-          description: "Conteúdo excluído com sucesso!",
-        });
-      }
+    if (VideoService.deleteVideo(video.id)) {
+      loadVideos();
+      toast({
+        title: "Sucesso!",
+        description: "Conteúdo excluído com sucesso!",
+      });
     }
   };
 
   const handleDeleteFeatured = (video: Video) => {
-    if (window.confirm(`Tem certeza que deseja remover "${video.title}" do destaque?`)) {
-      VideoService.removeFeaturedVideo();
-      loadVideos();
-      toast({
-        title: "Sucesso!",
-        description: "Conteúdo removido do destaque!",
-      });
-    }
+    VideoService.removeFeaturedVideo();
+    loadVideos();
+    toast({
+      title: "Sucesso!",
+      description: "Conteúdo removido do destaque!",
+    });
   };
 
   const handleAddFeatured = () => {
