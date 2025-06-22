@@ -53,8 +53,8 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
         
         {/* Play button overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 smooth-transition">
-          <div className="glass-card p-6 rounded-full">
-            <Play className="w-10 h-10 text-primary" />
+          <div className="w-16 h-16 rounded-full glass-card flex items-center justify-center">
+            <Play className="w-6 h-6 text-primary" />
           </div>
         </div>
         
