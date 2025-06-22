@@ -33,38 +33,57 @@ const AddFeaturedModal = ({ isOpen, onClose, onFeaturedAdded, editingVideo }: Ad
       setDescription('');
       setTags('');
     }
-  }, [editingVideo]);
+  }, [editingVideo, isOpen]);
+
+  const resetForm = () => {
+    setTitle('');
+    setUrl('');
+    setCover('');
+    setDescription('');
+    setTags('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     const videoData = {
-      title,
-      url,
-      cover,
-      description: description || 'Conteúdo especial em destaque na plataforma.',
+      title: title.trim(),
+      url: url.trim(),
+      cover: cover.trim(),
+      description: description.trim() || 'Conteúdo especial em destaque na plataforma.',
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
     };
 
     try {
       if (editingVideo) {
-        VideoService.updateVideo(editingVideo.id, videoData);
+        // Atualiza o vídeo existente em destaque
+        VideoService.updateFeaturedContent(videoData);
       } else {
-        VideoService.addVideo(videoData);
+        // Adiciona novo conteúdo como destaque
+        VideoService.addFeaturedContent(videoData);
       }
+      
+      resetForm();
       onFeaturedAdded();
       onClose();
+    } catch (error) {
+      console.error('Erro ao salvar conteúdo em destaque:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
       
       <div className="glass-modal p-6 w-full max-w-lg animate-scale-in">
         <div className="flex items-center justify-between mb-6">
@@ -75,7 +94,7 @@ const AddFeaturedModal = ({ isOpen, onClose, onFeaturedAdded, editingVideo }: Ad
             </h2>
           </div>
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             className="glass-card p-1 smooth-transition hover-glow"
           >
             <X className="w-4 h-4" />
@@ -161,7 +180,7 @@ const AddFeaturedModal = ({ isOpen, onClose, onFeaturedAdded, editingVideo }: Ad
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !title.trim() || !url.trim() || !cover.trim()}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50"
           >
             {isLoading ? 

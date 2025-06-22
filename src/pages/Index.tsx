@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
@@ -28,8 +27,12 @@ const Index = () => {
   const { toast } = useToast();
 
   const loadVideos = () => {
+    console.log('Carregando vídeos...');
     const loadedVideos = VideoService.getVideos();
     const featured = VideoService.getFeaturedVideo();
+    
+    console.log('Vídeos carregados:', loadedVideos.length);
+    console.log('Vídeo em destaque:', featured);
     
     setVideos(loadedVideos);
     setFeaturedVideo(featured);
@@ -94,6 +97,7 @@ const Index = () => {
   };
 
   const handleFeaturedAdded = () => {
+    console.log('Conteúdo em destaque adicionado, recarregando...');
     loadVideos();
     setEditingFeatured(null);
     toast({
@@ -133,6 +137,12 @@ const Index = () => {
         description: "Conteúdo removido do destaque!",
       });
     }
+  };
+
+  const handleAddFeatured = () => {
+    console.log('Abrindo modal para adicionar conteúdo em destaque');
+    setEditingFeatured(null);
+    setIsFeaturedModalOpen(true);
   };
 
   const handleSearchChange = (term: string) => {
@@ -176,7 +186,7 @@ const Index = () => {
         onPlay={handleVideoClick}
         onEdit={handleEditFeatured}
         onDelete={handleDeleteFeatured}
-        onAddFeatured={() => setIsFeaturedModalOpen(true)}
+        onAddFeatured={handleAddFeatured}
       />
       
       <div className="px-6">

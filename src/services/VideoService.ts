@@ -75,7 +75,7 @@ export class VideoService {
     );
   }
 
-  // Featured video methods
+  // Featured video methods - refatorados para funcionar corretamente
   static setFeaturedVideo(videoId: string): boolean {
     const video = this.getVideoById(videoId);
     if (video) {
@@ -100,9 +100,21 @@ export class VideoService {
     localStorage.removeItem(this.FEATURED_KEY);
   }
 
-  static addFeaturedVideo(video: Omit<Video, 'id' | 'created_at'>): Video {
+  // Método específico para adicionar conteúdo diretamente como destaque
+  static addFeaturedContent(video: Omit<Video, 'id' | 'created_at'>): Video {
+    // Primeiro adiciona o vídeo à lista geral
     const newVideo = this.addVideo(video);
+    // Depois define ele como o vídeo em destaque
     this.setFeaturedVideo(newVideo.id);
     return newVideo;
+  }
+
+  // Método para atualizar conteúdo em destaque
+  static updateFeaturedContent(video: Omit<Video, 'id' | 'created_at'>): boolean {
+    const featuredId = this.getFeaturedVideoId();
+    if (featuredId) {
+      return this.updateVideo(featuredId, video);
+    }
+    return false;
   }
 }
