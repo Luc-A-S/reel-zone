@@ -14,6 +14,8 @@ const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentSort, setCurrentSort] = useState('createdAt');
+  const [currentOrder, setCurrentOrder] = useState<'asc' | 'desc'>('desc');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
@@ -23,7 +25,35 @@ const Index = () => {
   const loadVideos = () => {
     const loadedVideos = VideoService.getVideos();
     setVideos(loadedVideos);
-    setFilteredVideos(loadedVideos);
+    applyFiltersAndSort(loadedVideos, searchTerm, currentSort, currentOrder);
+  };
+
+  const applyFiltersAndSort = (videoList: Video[], search: string, sortBy: string, order: 'asc' | 'desc') => {
+    let filtered = videoList;
+
+    // Aplicar busca
+    if (search.trim()) {
+      filtered = VideoService.searchVideos(search);
+    }
+
+    // Aplicar ordenação
+    filtered.sort((a, b) => {
+      let aValue: any = a[sortBy as keyof Video];
+      let bValue: any = b[sortBy as keyof Video];
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (order === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredVideos(filtered);
   };
 
   useEffect(() => {
@@ -31,13 +61,8 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    if (searchTerm.trim()) {
-      const filtered = VideoService.searchVideos(searchTerm);
-      setFilteredVideos(filtered);
-    } else {
-      setFilteredVideos(videos);
-    }
-  }, [searchTerm, videos]);
+    applyFiltersAndSort(videos, searchTerm, currentSort, currentOrder);
+  }, [searchTerm, videos, currentSort, currentOrder]);
 
   const handleVideoClick = (video: Video) => {
     window.open(video.url, '_blank');
@@ -46,8 +71,8 @@ const Index = () => {
   const handleVideoAdded = () => {
     loadVideos();
     toast({
-      title: "Success!",
-      description: "Content published successfully!",
+      title: "Sucesso!",
+      description: "Conteúdo publicado com sucesso!",
     });
   };
 
@@ -55,8 +80,8 @@ const Index = () => {
     loadVideos();
     setEditingVideo(null);
     toast({
-      title: "Success!",
-      description: "Content updated successfully!",
+      title: "Sucesso!",
+      description: "Conteúdo atualizado com sucesso!",
     });
   };
 
@@ -66,12 +91,12 @@ const Index = () => {
   };
 
   const handleDeleteVideo = (video: Video) => {
-    if (window.confirm(`Are you sure you want to delete "${video.title}"?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir "${video.title}"?`)) {
       if (VideoService.deleteVideo(video.id)) {
         loadVideos();
         toast({
-          title: "Success!",
-          description: "Content deleted successfully!",
+          title: "Sucesso!",
+          description: "Conteúdo excluído com sucesso!",
         });
       }
     }
@@ -79,6 +104,14 @@ const Index = () => {
 
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
+  };
+
+  const handleSortChange = (sortBy: string) => {
+    setCurrentSort(sortBy);
+  };
+
+  const handleOrderChange = (order: 'asc' | 'desc') => {
+    setCurrentOrder(order);
   };
 
   const handleModalClose = () => {
@@ -93,6 +126,10 @@ const Index = () => {
         onLoginClick={() => setIsLoginModalOpen(true)}
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
+        onOrderChange={handleOrderChange}
+        currentSort={currentSort}
+        currentOrder={currentOrder}
       />
       
       <div className="px-6 mt-12">
@@ -102,10 +139,10 @@ const Index = () => {
           <>
             <div className="max-w-7xl mx-auto mb-8">
               <h2 className="text-3xl font-bold text-foreground mb-2">
-                Featured <span className="neon-text">Content</span>
+                Conteúdo em <span className="neon-text">Destaque</span>
               </h2>
               <p className="text-muted-foreground font-medium">
-                Discover amazing content curated just for you
+                Descubra conteúdos incríveis selecionados especialmente para você
               </p>
             </div>
             

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { X, LogIn } from 'lucide-react';
+import { X, LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 
@@ -12,6 +12,7 @@ interface LoginModalProps {
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
@@ -52,7 +53,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <LogIn className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold">Admin Login</h2>
+            <h2 className="text-xl font-semibold">Login do Administrador</h2>
           </div>
           <button 
             onClick={onClose}
@@ -65,7 +66,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email
+              E-mail
             </label>
             <input
               id="email"
@@ -82,15 +83,24 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <label htmlFor="password" className="block text-sm font-medium mb-2">
               Senha
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full glass-card px-4 py-3 pr-12 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground smooth-transition"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           <button
