@@ -19,6 +19,7 @@ const Index = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -71,7 +72,7 @@ const Index = () => {
   const handleVideoAdded = () => {
     loadVideos();
     toast({
-      title: "Sucesso!",
+      title: "Sucesso! 🎉",
       description: "Conteúdo publicado com sucesso!",
     });
   };
@@ -80,7 +81,7 @@ const Index = () => {
     loadVideos();
     setEditingVideo(null);
     toast({
-      title: "Sucesso!",
+      title: "Sucesso! ✨",
       description: "Conteúdo atualizado com sucesso!",
     });
   };
@@ -95,7 +96,7 @@ const Index = () => {
       if (VideoService.deleteVideo(video.id)) {
         loadVideos();
         toast({
-          title: "Sucesso!",
+          title: "Excluído! 🗑️",
           description: "Conteúdo excluído com sucesso!",
         });
       }
@@ -119,6 +120,13 @@ const Index = () => {
     setEditingVideo(null);
   };
 
+  const getGridClasses = () => {
+    if (viewMode === 'list') {
+      return 'space-y-4';
+    }
+    return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8';
+  };
+
   return (
     <div className="min-h-screen pb-12">
       <TopBar 
@@ -130,6 +138,8 @@ const Index = () => {
         onOrderChange={handleOrderChange}
         currentSort={currentSort}
         currentOrder={currentOrder}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
       
       <div className="px-6 mt-12">
@@ -138,25 +148,32 @@ const Index = () => {
         ) : (
           <>
             <div className="max-w-7xl mx-auto mb-8">
-              <h2 className="text-3xl font-bold text-foreground mb-2">
+              <h2 className="text-4xl font-bold text-foreground mb-2">
                 Conteúdo em <span className="neon-text">Destaque</span>
               </h2>
-              <p className="text-muted-foreground font-medium">
-                Descubra conteúdos incríveis selecionados especialmente para você
+              <p className="text-muted-foreground font-medium text-lg">
+                Descubra conteúdos incríveis selecionados especialmente para você ✨
               </p>
+              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+                <span>{filteredVideos.length} conteúdos encontrados</span>
+                {searchTerm && (
+                  <span>• Buscando por "{searchTerm}"</span>
+                )}
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            <div className={`${getGridClasses()} max-w-7xl mx-auto`}>
               {filteredVideos.map((video, index) => (
                 <div
                   key={video.id}
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <VideoCard
                     video={video}
                     onClick={handleVideoClick}
                     onEdit={handleEditVideo}
                     onDelete={handleDeleteVideo}
+                    viewMode={viewMode}
                   />
                 </div>
               ))}
