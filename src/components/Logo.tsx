@@ -1,13 +1,19 @@
 
-import { Play } from 'lucide-react';
-
 const Logo = () => {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg hover-glow smooth-transition press-effect cursor-pointer">
-        <Play className="w-4 h-4 text-primary-foreground fill-current ml-0.5" />
+      <div className="relative">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+          <span className="text-black font-bold text-lg">R</span>
+        </div>
+        <div className="absolute inset-0 w-10 h-10 rounded-xl bg-primary/20 animate-neon-pulse"></div>
       </div>
-      <span className="text-xl font-semibold tracking-tight">ReelZone</span>
+      <div>
+        <h1 className="text-xl font-bold text-foreground">
+          Reel<span className="neon-text">Zone</span>
+        </h1>
+        <p className="text-xs text-muted-foreground font-medium">Content Platform</p>
+      </div>
     </div>
   );
 };

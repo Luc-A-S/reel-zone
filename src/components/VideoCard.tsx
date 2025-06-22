@@ -1,6 +1,6 @@
 
 import { Video } from '../types';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Play } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface VideoCardProps {
@@ -36,7 +36,7 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
 
   return (
     <div 
-      className="glass-card overflow-hidden cursor-pointer smooth-transition hover:shadow-lg press-effect animate-fade-up"
+      className="glass-card overflow-hidden cursor-pointer smooth-transition hover:scale-[1.02] hover-glow press-effect animate-fade-up group"
       onClick={handleClick}
       style={{ aspectRatio: '1080/1350' }}
     >
@@ -48,45 +48,55 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
           onLoad={handleImageLoad}
         />
         
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
+        {/* Play button overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 smooth-transition">
+          <div className="glass-card p-4 rounded-full">
+            <Play className="w-8 h-8 text-primary" />
+          </div>
+        </div>
+        
+        {/* Action buttons */}
         {isAuthenticated && (
-          <div className="absolute top-2 right-2 flex gap-2">
+          <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 smooth-transition">
             <button
               onClick={handleEdit}
-              className="action-button glass p-1.5 smooth-transition hover:shadow-lg press-effect"
+              className="action-button glass-card p-2 smooth-transition hover-glow press-effect rounded-lg"
               aria-label="Edit video"
             >
-              <Edit className="w-3 h-3 text-white" />
+              <Edit className="w-4 h-4 text-primary" />
             </button>
             <button
               onClick={handleDelete}
-              className="action-button glass p-1.5 smooth-transition hover:shadow-lg press-effect"
+              className="action-button glass-card p-2 smooth-transition hover:bg-destructive/20 press-effect rounded-lg"
               aria-label="Delete video"
             >
-              <Trash2 className="w-3 h-3 text-white" />
+              <Trash2 className="w-4 h-4 text-destructive" />
             </button>
           </div>
         )}
         
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <div className="glass rounded-xl p-3 space-y-2">
-            <h3 className="font-semibold text-white text-lg leading-tight line-clamp-2">
+        {/* Content overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <div className="glass-card rounded-2xl p-4 space-y-3">
+            <h3 className="font-bold text-white text-lg leading-tight line-clamp-2">
               {video.title}
             </h3>
             
             {video.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-2">
                 {video.tags.slice(0, 3).map((tag, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 text-xs font-medium bg-primary/20 text-primary rounded-full backdrop-blur-sm"
+                    className="px-3 py-1 text-xs font-semibold bg-primary/20 text-primary rounded-full border border-primary/30"
                   >
                     {tag}
                   </span>
                 ))}
                 {video.tags.length > 3 && (
-                  <span className="px-2 py-1 text-xs font-medium bg-muted/20 text-muted-foreground rounded-full backdrop-blur-sm">
+                  <span className="px-3 py-1 text-xs font-semibold bg-muted/20 text-muted-foreground rounded-full border border-muted/30">
                     +{video.tags.length - 3}
                   </span>
                 )}

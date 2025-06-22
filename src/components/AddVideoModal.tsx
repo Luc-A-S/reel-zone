@@ -87,8 +87,8 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       reader.readAsDataURL(file);
     } else {
       toast({
-        title: "Erro no arquivo",
-        description: "Por favor, selecione apenas arquivos PNG.",
+        title: "File error",
+        description: "Please select PNG files only.",
         variant: "destructive",
       });
     }
@@ -116,8 +116,8 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       });
 
       toast({
-        title: "Atualizado!",
-        description: "Conteúdo atualizado com sucesso.",
+        title: "Updated!",
+        description: "Content updated successfully.",
       });
 
       onVideoUpdated();
@@ -132,8 +132,8 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       });
 
       toast({
-        title: "Publicado!",
-        description: "Novo conteúdo adicionado com sucesso.",
+        title: "Published!",
+        description: "New content added successfully.",
       });
 
       onVideoAdded();
@@ -145,43 +145,43 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
   if (!isOpen) return null;
 
   const stepTitles = [
-    'URL do Drive',
-    'Capa da Publicação', 
-    'Título & Descrição',
+    'Drive URL',
+    'Cover Image', 
+    'Title & Description',
     'Tags'
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
       
-      <div className="glass-modal p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="flex items-center justify-between mb-6">
+      <div className="glass-modal p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-scale-in">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-xl font-semibold">
-              {editingVideo ? 'Editar Conteúdo' : 'Adicionar Conteúdo'}
+            <h2 className="text-2xl font-bold text-foreground">
+              {editingVideo ? 'Edit Content' : 'Add Content'}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Passo {step} de 4: {stepTitles[step - 1]}
+            <p className="text-muted-foreground font-medium mt-1">
+              Step {step} of 4: {stepTitles[step - 1]}
             </p>
           </div>
           <button 
             onClick={handleClose}
-            className="glass-card p-1 smooth-transition hover-glow"
+            className="glass-card p-2 smooth-transition hover-glow rounded-xl"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="mb-6">
-          <div className="flex space-x-2">
+        <div className="mb-8">
+          <div className="flex space-x-3">
             {[1, 2, 3, 4].map((num) => (
               <div
                 key={num}
-                className={`flex-1 h-2 rounded-full ${
-                  num <= step ? 'bg-primary' : 'bg-muted'
-                } smooth-transition`}
+                className={`flex-1 h-3 rounded-full smooth-transition ${
+                  num <= step ? 'bg-primary animate-neon-pulse' : 'bg-muted'
+                }`}
               />
             ))}
           </div>
@@ -189,20 +189,20 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
 
         {/* Step 1: URL */}
         {step === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                URL do Google Drive
+              <label className="block text-sm font-semibold mb-3 text-foreground">
+                Google Drive URL
               </label>
               <input
                 type="url"
                 value={formData.url}
                 onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
+                className="w-full glass-card px-4 py-4 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:outline-none smooth-transition text-foreground font-medium"
                 placeholder="https://drive.google.com/..."
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Cole aqui o link do seu arquivo no Google Drive
+              <p className="text-xs text-muted-foreground mt-2 font-medium">
+                Paste your Google Drive file link here
               </p>
             </div>
           </div>
@@ -210,33 +210,33 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
 
         {/* Step 2: Cover */}
         {step === 2 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Capa (PNG, 1080×1350)
+              <label className="block text-sm font-semibold mb-3 text-foreground">
+                Cover Image (PNG, 1080×1350)
               </label>
               
               {formData.cover ? (
-                <div className="relative glass-card p-4 rounded-xl">
+                <div className="relative glass-card p-6 rounded-2xl">
                   <img
                     src={formData.cover}
                     alt="Preview"
-                    className="w-full max-w-xs mx-auto rounded-xl object-cover"
+                    className="w-full max-w-sm mx-auto rounded-2xl object-cover"
                     style={{ aspectRatio: '1080/1350' }}
                   />
                   <button
                     onClick={() => setFormData(prev => ({ ...prev, cover: '' }))}
-                    className="absolute top-2 right-2 glass-card p-1"
+                    className="absolute top-3 right-3 glass-card p-2 rounded-xl hover-glow smooth-transition"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <label className="glass-card p-8 rounded-xl border-2 border-dashed border-muted cursor-pointer hover-glow smooth-transition block">
+                <label className="glass-card p-12 rounded-2xl border-2 border-dashed border-primary/30 cursor-pointer hover-glow smooth-transition block">
                   <div className="text-center">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm font-medium">Clique para fazer upload</p>
-                    <p className="text-xs text-muted-foreground">PNG, máx. 10MB</p>
+                    <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
+                    <p className="text-lg font-semibold text-foreground mb-2">Click to upload</p>
+                    <p className="text-sm text-muted-foreground font-medium">PNG files only, max 10MB</p>
                   </div>
                   <input
                     type="file"
@@ -252,30 +252,30 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
 
         {/* Step 3: Title & Description */}
         {step === 3 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Título
+              <label className="block text-sm font-semibold mb-3 text-foreground">
+                Title
               </label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
-                placeholder="Digite o título do conteúdo"
+                className="w-full glass-card px-4 py-4 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:outline-none smooth-transition text-foreground font-medium"
+                placeholder="Enter content title"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Descrição
+              <label className="block text-sm font-semibold mb-3 text-foreground">
+                Description
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition resize-none"
-                rows={4}
-                placeholder="Descreva o conteúdo..."
+                className="w-full glass-card px-4 py-4 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:outline-none smooth-transition resize-none text-foreground font-medium"
+                rows={5}
+                placeholder="Describe your content..."
               />
             </div>
           </div>
@@ -283,34 +283,34 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
 
         {/* Step 4: Tags */}
         {step === 4 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-semibold mb-3 text-foreground">
                 Tags
               </label>
               <input
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-primary focus:outline-none smooth-transition"
-                placeholder="FILME, 2025, HD"
+                className="w-full glass-card px-4 py-4 rounded-2xl focus:ring-2 focus:ring-primary/50 focus:outline-none smooth-transition text-foreground font-medium"
+                placeholder="MOVIE, 2025, HD"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Separe as tags por vírgula. Elas serão convertidas para maiúsculas e receberão o prefixo #
+              <p className="text-xs text-muted-foreground mt-2 font-medium">
+                Separate tags with commas. They will be converted to uppercase with # prefix
               </p>
             </div>
 
             {formData.tags && (
-              <div className="glass-card p-4 rounded-xl">
-                <p className="text-sm font-medium mb-2">Preview das tags:</p>
-                <div className="flex flex-wrap gap-1">
+              <div className="glass-card p-6 rounded-2xl">
+                <p className="text-sm font-semibold mb-3 text-foreground">Tags Preview:</p>
+                <div className="flex flex-wrap gap-2">
                   {formData.tags.split(',').map((tag, index) => {
                     const cleaned = tag.trim().toUpperCase();
                     const finalTag = cleaned.startsWith('#') ? cleaned : `#${cleaned}`;
                     return (
                       <span
                         key={index}
-                        className="px-2 py-1 text-xs font-medium bg-primary/20 text-primary rounded-full"
+                        className="px-3 py-2 text-sm font-semibold bg-primary/20 text-primary rounded-full border border-primary/30"
                       >
                         {finalTag}
                       </span>
@@ -323,33 +323,33 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
         )}
 
         {/* Navigation buttons */}
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between mt-10">
           <button
             onClick={handlePrevious}
             disabled={step === 1}
-            className="flex items-center gap-2 glass-card px-4 py-2 rounded-xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-3 glass-card px-6 py-3 rounded-2xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
-            Anterior
+            Previous
           </button>
 
           {step < 4 ? (
             <button
               onClick={handleNext}
               disabled={!validateStep(step)}
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-3 neon-border bg-primary/10 px-6 py-3 rounded-2xl smooth-transition hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-primary"
             >
-              Próximo
+              Next
               <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
             <button
               onClick={handleSubmit}
               disabled={!validateStep(step)}
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-3 bg-primary text-primary-foreground px-6 py-3 rounded-2xl smooth-transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               <Check className="w-4 h-4" />
-              {editingVideo ? 'Atualizar' : 'Adicionar'}
+              {editingVideo ? 'Update' : 'Publish'}
             </button>
           )}
         </div>
