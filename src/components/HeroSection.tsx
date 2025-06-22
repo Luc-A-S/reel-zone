@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Play, Plus, Info, Edit, Trash2 } from 'lucide-react';
+import { Play, Plus, Edit, Trash2 } from 'lucide-react';
 import { Video } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
@@ -106,14 +106,6 @@ const HeroSection = ({ featuredVideo, onPlay, onEdit, onDelete, onAddFeatured }:
               >
                 <Play className="w-6 h-6 fill-current" />
                 Assistir
-              </button>
-              
-              <button
-                onClick={() => onPlay(featuredVideo)}
-                className="glass-card text-white px-8 py-4 rounded-xl font-semibold text-lg smooth-transition hover-glow press-effect inline-flex items-center gap-3"
-              >
-                <Info className="w-6 h-6" />
-                Mais informações
               </button>
 
               {/* Admin Actions */}

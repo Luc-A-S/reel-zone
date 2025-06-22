@@ -75,7 +75,7 @@ export class VideoService {
     );
   }
 
-  // Featured video methods - refatorados para funcionar corretamente
+  // Featured video methods
   static setFeaturedVideo(videoId: string): boolean {
     const video = this.getVideoById(videoId);
     if (video) {
@@ -102,9 +102,9 @@ export class VideoService {
 
   // Método específico para adicionar conteúdo diretamente como destaque
   static addFeaturedContent(video: Omit<Video, 'id' | 'created_at'>): Video {
-    // Primeiro adiciona o vídeo à lista geral
+    // Adiciona o vídeo à lista geral
     const newVideo = this.addVideo(video);
-    // Depois define ele como o vídeo em destaque
+    // Define ele como o vídeo em destaque (substitui o anterior se existir)
     this.setFeaturedVideo(newVideo.id);
     return newVideo;
   }
