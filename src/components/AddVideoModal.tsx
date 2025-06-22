@@ -1,16 +1,19 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Upload, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { VideoService } from '../services/VideoService';
 import { toast } from '@/hooks/use-toast';
+import { Video } from '../types';
 
 interface AddVideoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onVideoAdded: () => void;
+  onVideoUpdated: () => void;
+  editingVideo: Video | null;
 }
 
-const AddVideoModal = ({ isOpen, onClose, onVideoAdded }: AddVideoModalProps) => {
+const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingVideo }: AddVideoModalProps) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     url: '',
@@ -19,6 +22,19 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded }: AddVideoModalProps) =>
     description: '',
     tags: ''
   });
+
+  // Load editing video data when editingVideo changes
+  useEffect(() => {
+    if (editingVideo) {
+      setFormData({
+        url: editingVideo.url,
+        cover: editingVideo.cover,
+        title: editingVideo.title,
+        description: editingVideo.description,
+        tags: editingVideo.tags.join(', ')
+      });
+    }
+  }, [editingVideo]);
 
   const resetForm = () => {
     setStep(1);
@@ -89,20 +105,40 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded }: AddVideoModalProps) =>
       })
       .filter(tag => tag.length > 1);
 
-    VideoService.addVideo({
-      url: formData.url,
-      cover: formData.cover,
-      title: formData.title,
-      description: formData.description,
-      tags
-    });
+    if (editingVideo) {
+      // Update existing video
+      VideoService.updateVideo(editingVideo.id, {
+        url: formData.url,
+        cover: formData.cover,
+        title: formData.title,
+        description: formData.description,
+        tags
+      });
 
-    toast({
-      title: "Publicado!",
-      description: "Novo conteúdo adicionado com sucesso.",
-    });
+      toast({
+        title: "Atualizado!",
+        description: "Conteúdo atualizado com sucesso.",
+      });
 
-    onVideoAdded();
+      onVideoUpdated();
+    } else {
+      // Add new video
+      VideoService.addVideo({
+        url: formData.url,
+        cover: formData.cover,
+        title: formData.title,
+        description: formData.description,
+        tags
+      });
+
+      toast({
+        title: "Publicado!",
+        description: "Novo conteúdo adicionado com sucesso.",
+      });
+
+      onVideoAdded();
+    }
+
     handleClose();
   };
 
@@ -122,7 +158,9 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded }: AddVideoModalProps) =>
       <div className="glass-modal p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-semibold">Adicionar Conteúdo</h2>
+            <h2 className="text-xl font-semibold">
+              {editingVideo ? 'Editar Conteúdo' : 'Adicionar Conteúdo'}
+            </h2>
             <p className="text-sm text-muted-foreground">
               Passo {step} de 4: {stepTitles[step - 1]}
             </p>
@@ -311,7 +349,7 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded }: AddVideoModalProps) =>
               className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-4 h-4" />
-              Adicionar
+              {editingVideo ? 'Atualizar' : 'Adicionar'}
             </button>
           )}
         </div>
