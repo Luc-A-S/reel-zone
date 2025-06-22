@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import VideoCard from '../components/VideoCard';
+import HeroSection from '../components/HeroSection';
 import LoginModal from '../components/LoginModal';
 import AddVideoModal from '../components/AddVideoModal';
+import AddFeaturedModal from '../components/AddFeaturedModal';
 import EmptyState from '../components/EmptyState';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
@@ -13,18 +15,24 @@ import { useToast } from '../hooks/use-toast';
 const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
+  const [featuredVideo, setFeaturedVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentSort, setCurrentSort] = useState('createdAt');
   const [currentOrder, setCurrentOrder] = useState<'asc' | 'desc'>('desc');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isFeaturedModalOpen, setIsFeaturedModalOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
+  const [editingFeatured, setEditingFeatured] = useState<Video | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const loadVideos = () => {
     const loadedVideos = VideoService.getVideos();
+    const featured = VideoService.getFeaturedVideo();
+    
     setVideos(loadedVideos);
+    setFeaturedVideo(featured);
     applyFiltersAndSort(loadedVideos, searchTerm, currentSort, currentOrder);
   };
 
@@ -85,9 +93,23 @@ const Index = () => {
     });
   };
 
+  const handleFeaturedAdded = () => {
+    loadVideos();
+    setEditingFeatured(null);
+    toast({
+      title: "Sucesso!",
+      description: "Conteúdo em destaque adicionado com sucesso!",
+    });
+  };
+
   const handleEditVideo = (video: Video) => {
     setEditingVideo(video);
     setIsAddModalOpen(true);
+  };
+
+  const handleEditFeatured = (video: Video) => {
+    setEditingFeatured(video);
+    setIsFeaturedModalOpen(true);
   };
 
   const handleDeleteVideo = (video: Video) => {
@@ -99,6 +121,17 @@ const Index = () => {
           description: "Conteúdo excluído com sucesso!",
         });
       }
+    }
+  };
+
+  const handleDeleteFeatured = (video: Video) => {
+    if (window.confirm(`Tem certeza que deseja remover "${video.title}" do destaque?`)) {
+      VideoService.removeFeaturedVideo();
+      loadVideos();
+      toast({
+        title: "Sucesso!",
+        description: "Conteúdo removido do destaque!",
+      });
     }
   };
 
@@ -119,20 +152,34 @@ const Index = () => {
     setEditingVideo(null);
   };
 
+  const handleFeaturedModalClose = () => {
+    setIsFeaturedModalOpen(false);
+    setEditingFeatured(null);
+  };
+
   return (
     <div className="min-h-screen pb-12">
       <TopBar 
         onAddClick={() => setIsAddModalOpen(true)}
         onLoginClick={() => setIsLoginModalOpen(true)}
         searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        onSortChange={handleSortChange}
-        onOrderChange={handleOrderChange}
+        onSearchChange={setSearchTerm}
+        onSortChange={setCurrentSort}
+        onOrderChange={setCurrentOrder}
         currentSort={currentSort}
         currentOrder={currentOrder}
       />
       
-      <div className="px-6 mt-12">
+      {/* Hero Section */}
+      <HeroSection
+        featuredVideo={featuredVideo}
+        onPlay={handleVideoClick}
+        onEdit={handleEditFeatured}
+        onDelete={handleDeleteFeatured}
+        onAddFeatured={() => setIsFeaturedModalOpen(true)}
+      />
+      
+      <div className="px-6">
         {filteredVideos.length === 0 ? (
           <EmptyState />
         ) : (
@@ -176,6 +223,13 @@ const Index = () => {
         onVideoAdded={handleVideoAdded}
         onVideoUpdated={handleVideoUpdated}
         editingVideo={editingVideo}
+      />
+
+      <AddFeaturedModal
+        isOpen={isFeaturedModalOpen}
+        onClose={handleFeaturedModalClose}
+        onFeaturedAdded={handleFeaturedAdded}
+        editingVideo={editingFeatured}
       />
     </div>
   );

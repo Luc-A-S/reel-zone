@@ -3,6 +3,7 @@ import { Video } from '../types';
 
 export class VideoService {
   private static STORAGE_KEY = 'reelzone_videos';
+  private static FEATURED_KEY = 'reelzone_featured';
 
   static getVideos(): Video[] {
     try {
@@ -45,6 +46,13 @@ export class VideoService {
     
     if (filtered.length !== videos.length) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
+      
+      // Remove from featured if it's the featured video
+      const featuredId = this.getFeaturedVideoId();
+      if (featuredId === id) {
+        this.removeFeaturedVideo();
+      }
+      
       return true;
     }
     return false;
@@ -65,5 +73,36 @@ export class VideoService {
       video.description.toLowerCase().includes(term) ||
       video.tags.some(tag => tag.toLowerCase().includes(term))
     );
+  }
+
+  // Featured video methods
+  static setFeaturedVideo(videoId: string): boolean {
+    const video = this.getVideoById(videoId);
+    if (video) {
+      localStorage.setItem(this.FEATURED_KEY, videoId);
+      return true;
+    }
+    return false;
+  }
+
+  static getFeaturedVideoId(): string | null {
+    return localStorage.getItem(this.FEATURED_KEY);
+  }
+
+  static getFeaturedVideo(): Video | null {
+    const featuredId = this.getFeaturedVideoId();
+    if (!featuredId) return null;
+    
+    return this.getVideoById(featuredId);
+  }
+
+  static removeFeaturedVideo(): void {
+    localStorage.removeItem(this.FEATURED_KEY);
+  }
+
+  static addFeaturedVideo(video: Omit<Video, 'id' | 'created_at'>): Video {
+    const newVideo = this.addVideo(video);
+    this.setFeaturedVideo(newVideo.id);
+    return newVideo;
   }
 }
