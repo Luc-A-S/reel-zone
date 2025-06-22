@@ -3,6 +3,7 @@ import { Plus, LogOut, Search } from 'lucide-react';
 import Logo from './Logo';
 import CountdownTimer from './CountdownTimer';
 import FilterControls from './FilterControls';
+import VoiceSearch from './VoiceSearch';
 import { useAuth } from '../hooks/useAuth';
 
 interface TopBarProps {
@@ -36,6 +37,10 @@ const TopBar = ({
     }
   };
 
+  const handleVoiceSearchResult = (text: string) => {
+    onSearchChange(text);
+  };
+
   return (
     <div className="sticky top-0 z-50 mx-4 mt-6">
       <div className="glass-card px-8 py-6">
@@ -53,6 +58,7 @@ const TopBar = ({
                 className="w-full pl-12 pr-4 py-3 glass rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 smooth-transition text-sm font-medium"
               />
             </div>
+            <VoiceSearch onSearchResult={handleVoiceSearchResult} />
           </div>
           
           <div className="flex items-center gap-4">
