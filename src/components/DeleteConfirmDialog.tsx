@@ -56,7 +56,7 @@ const DeleteConfirmDialog = ({
         <AlertDialogFooter className="gap-3 sm:gap-3">
           <AlertDialogCancel 
             onClick={onClose}
-            className="glass-card border-border/50 hover:bg-muted/50 smooth-transition press-effect flex-1"
+            className="glass-card border-border/50 hover:bg-muted/50 hover:text-primary smooth-transition press-effect flex-1"
           >
             Cancelar
           </AlertDialogCancel>
