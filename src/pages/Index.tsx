@@ -7,6 +7,8 @@ import StepFormModal from '../components/StepFormModal';
 import EmptyState from '../components/EmptyState';
 import VideoViewModal from '../components/VideoViewModal';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
+import FloatingFavoritesButton from '../components/FloatingFavoritesButton';
+import FavoritesModal from '../components/FavoritesModal';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
@@ -19,6 +21,7 @@ const Index = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -102,7 +105,7 @@ const Index = () => {
   const documentarioVideos = filteredVideos.filter(v => v.category === 'Documentário').slice(0, 5);
 
   return (
-    <div className="min-h-screen pb-8 sm:pb-12">
+    <div className="min-h-screen pb-24 sm:pb-28">
       <TopBar 
         onAddClick={() => setIsAddModalOpen(true)}
         onLoginClick={() => setIsLoginModalOpen(true)}
@@ -217,6 +220,8 @@ const Index = () => {
         )}
       </div>
 
+      <FloatingFavoritesButton onClick={() => setIsFavoritesModalOpen(true)} />
+
       <LoginModal 
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
@@ -234,6 +239,14 @@ const Index = () => {
         video={selectedVideo}
         isOpen={!!selectedVideo}
         onClose={() => setSelectedVideo(null)}
+      />
+
+      <FavoritesModal
+        isOpen={isFavoritesModalOpen}
+        onClose={() => setIsFavoritesModalOpen(false)}
+        onVideoClick={handleVideoClick}
+        onVideoEdit={handleEditVideo}
+        onVideoDelete={handleDeleteVideo}
       />
 
       <PWAInstallPrompt />

@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useState } from 'react';
 import { useIsMobile } from '../hooks/use-mobile';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import FavoriteButton from './FavoriteButton';
 
 interface VideoCardProps {
   video: Video;
@@ -19,7 +20,7 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
   const isMobile = useIsMobile();
 
   const handleClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.action-button')) {
+    if ((e.target as HTMLElement).closest('.action-button') || (e.target as HTMLElement).closest('button')) {
       return;
     }
     onClick(video);
@@ -46,12 +47,12 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
 
   return (
     <>
-      <div 
-        className="glass-card overflow-hidden cursor-pointer smooth-transition hover:scale-[1.02] hover-glow press-effect animate-fade-up group"
-        onClick={handleClick}
-        style={{ aspectRatio: '1080/1350' }}
-      >
-        <div className="relative h-full">
+      <div className="glass-card overflow-hidden smooth-transition hover:scale-[1.02] hover-glow animate-fade-up group">
+        <div 
+          className="relative cursor-pointer press-effect"
+          onClick={handleClick}
+          style={{ aspectRatio: '1080/1350' }}
+        >
           <img
             src={video.cover}
             alt={video.title}
@@ -100,6 +101,28 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
             </div>
           )}
         </div>
+
+        {/* Desktop title and favorite button */}
+        {!isMobile && (
+          <div className="p-3">
+            <h3 className="text-foreground text-sm font-medium line-clamp-2 leading-tight mb-2">
+              {video.title}
+            </h3>
+            {video.category === 'Série' && video.season && video.episode && (
+              <p className="text-muted-foreground text-xs mb-2">
+                T{video.season} E{video.episode}
+              </p>
+            )}
+            <FavoriteButton videoId={video.id} videoTitle={video.title} />
+          </div>
+        )}
+
+        {/* Mobile favorite button */}
+        {isMobile && (
+          <div className="p-2">
+            <FavoriteButton videoId={video.id} videoTitle={video.title} />
+          </div>
+        )}
       </div>
 
       <DeleteConfirmDialog
