@@ -68,7 +68,7 @@ const TopBar = ({
                   className="w-full pl-6 sm:pl-8 md:pl-10 lg:pl-12 pr-2 sm:pr-3 md:pr-4 py-1.5 sm:py-2 md:py-2.5 lg:py-3 glass rounded-lg sm:rounded-xl md:rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 smooth-transition text-xs sm:text-sm md:text-sm lg:text-base font-medium"
                 />
               </div>
-              {!isMobile && <VoiceSearch onSearchResult={handleVoiceSearchResult} />}
+              <VoiceSearch onSearchResult={handleVoiceSearchResult} />
             </div>
             
             {/* Action buttons - responsive layout */}

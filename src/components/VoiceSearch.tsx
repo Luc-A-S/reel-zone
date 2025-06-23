@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
+import { useIsMobile } from '../hooks/use-mobile';
 
 interface VoiceSearchProps {
   onSearchResult: (text: string) => void;
@@ -9,6 +10,7 @@ interface VoiceSearchProps {
 const VoiceSearch = ({ onSearchResult }: VoiceSearchProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Verificar se a Web Speech API é suportada
@@ -59,7 +61,11 @@ const VoiceSearch = ({ onSearchResult }: VoiceSearchProps) => {
   return (
     <button
       onClick={isListening ? stopListening : startListening}
-      className={`glass-card p-3 smooth-transition press-effect rounded-xl ${
+      className={`glass-card ${
+        isMobile 
+          ? 'p-1.5 rounded-lg' 
+          : 'p-2 sm:p-2.5 md:p-3 rounded-xl'
+      } smooth-transition press-effect ${
         isListening 
           ? 'neon-border bg-primary/20 animate-neon-pulse' 
           : 'hover-glow hover:bg-primary/10'
@@ -68,9 +74,9 @@ const VoiceSearch = ({ onSearchResult }: VoiceSearchProps) => {
       title={isListening ? "Parar gravação" : "Pesquisar por voz"}
     >
       {isListening ? (
-        <MicOff className="w-5 h-5 text-primary" />
+        <MicOff className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5'} text-primary`} />
       ) : (
-        <Mic className="w-5 h-5 text-foreground" />
+        <Mic className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5'} text-foreground`} />
       )}
     </button>
   );
