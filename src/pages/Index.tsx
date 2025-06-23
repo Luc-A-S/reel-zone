@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
@@ -9,6 +10,7 @@ import VideoViewModal from '../components/VideoViewModal';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import FloatingFavoritesButton from '../components/FloatingFavoritesButton';
 import FavoritesModal from '../components/FavoritesModal';
+import FeaturedContent from '../components/FeaturedContent';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
@@ -99,6 +101,11 @@ const Index = () => {
     setEditingVideo(null);
   };
 
+  const handleFeaturedChange = () => {
+    // Força atualização do componente quando o conteúdo em destaque muda
+    loadVideos();
+  };
+
   // Organizar vídeos por categoria
   const filmeVideos = filteredVideos.filter(v => v.category === 'Filme').slice(0, 5);
   const serieVideos = filteredVideos.filter(v => v.category === 'Série').slice(0, 5);
@@ -114,6 +121,13 @@ const Index = () => {
       />
       
       <div className="px-3 sm:px-4 lg:px-6 mt-4 sm:mt-8">
+        {/* Featured Content */}
+        <FeaturedContent
+          onVideoClick={handleVideoClick}
+          onVideoEdit={handleEditVideo}
+          onFeaturedChange={handleFeaturedChange}
+        />
+
         {filteredVideos.length === 0 ? (
           <EmptyState />
         ) : (

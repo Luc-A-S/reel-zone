@@ -1,9 +1,9 @@
-
 import { Video, Notification } from '../types';
 
 export class VideoService {
   private static STORAGE_KEY = 'reelzone_videos';
   private static NOTIFICATIONS_KEY = 'reelzone_notifications';
+  private static FEATURED_KEY = 'reelzone_featured_video';
 
   static getVideos(): Video[] {
     try {
@@ -115,6 +115,32 @@ export class VideoService {
     const videos = this.getVideos();
     const allTags = videos.flatMap(video => video.tags);
     return [...new Set(allTags)].sort();
+  }
+
+  // Featured content methods
+  static setFeaturedVideo(videoId: string): boolean {
+    const video = this.getVideoById(videoId);
+    if (video) {
+      localStorage.setItem(this.FEATURED_KEY, videoId);
+      return true;
+    }
+    return false;
+  }
+
+  static getFeaturedVideo(): Video | null {
+    try {
+      const featuredId = localStorage.getItem(this.FEATURED_KEY);
+      if (featuredId) {
+        return this.getVideoById(featuredId);
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  static removeFeaturedVideo(): void {
+    localStorage.removeItem(this.FEATURED_KEY);
   }
 
   // Sistema de notificações
