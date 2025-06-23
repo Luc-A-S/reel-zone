@@ -1,9 +1,9 @@
 
-import { Video } from '../types';
+import { Video, Notification } from '../types';
 
 export class VideoService {
   private static STORAGE_KEY = 'reelzone_videos';
-  private static FEATURED_KEY = 'reelzone_featured';
+  private static NOTIFICATIONS_KEY = 'reelzone_notifications';
 
   static getVideos(): Video[] {
     try {
@@ -14,16 +14,20 @@ export class VideoService {
     }
   }
 
-  static addVideo(video: Omit<Video, 'id' | 'created_at'>): Video {
+  static addVideo(video: Omit<Video, 'id' | 'created_at' | 'clicks'>): Video {
     const newVideo: Video = {
       ...video,
       id: crypto.randomUUID(),
       created_at: new Date().toISOString(),
+      clicks: 0,
     };
 
     const videos = this.getVideos();
     videos.unshift(newVideo);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(videos));
+    
+    // Adicionar notificação
+    this.addNotification(`Novo ${video.category.toLowerCase()} "${video.title}" foi adicionado!`);
     
     return newVideo;
   }
@@ -46,13 +50,6 @@ export class VideoService {
     
     if (filtered.length !== videos.length) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
-      
-      // Remove from featured if it's the featured video
-      const featuredId = this.getFeaturedVideoId();
-      if (featuredId === id) {
-        this.removeFeaturedVideo();
-      }
-      
       return true;
     }
     return false;
@@ -71,50 +68,84 @@ export class VideoService {
     return videos.filter(video => 
       video.title.toLowerCase().includes(term) ||
       video.description.toLowerCase().includes(term) ||
-      video.tags.some(tag => tag.toLowerCase().includes(term))
+      video.tags.some(tag => tag.toLowerCase().includes(term)) ||
+      video.category.toLowerCase().includes(term)
     );
   }
 
-  // Featured video methods
-  static setFeaturedVideo(videoId: string): boolean {
-    const video = this.getVideoById(videoId);
+  static getVideosByCategory(category: 'Filme' | 'Série' | 'Documentário'): Video[] {
+    const videos = this.getVideos();
+    return videos.filter(video => video.category === category);
+  }
+
+  static getVideosByTag(tag: string): Video[] {
+    const videos = this.getVideos();
+    return videos.filter(video => 
+      video.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+    );
+  }
+
+  static getRecentVideos(limit: number = 5): Video[] {
+    const videos = this.getVideos();
+    return videos
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, limit);
+  }
+
+  static getTopVideos(limit: number = 5): Video[] {
+    const videos = this.getVideos();
+    return videos
+      .sort((a, b) => b.clicks - a.clicks)
+      .slice(0, limit);
+  }
+
+  static incrementClicks(id: string): boolean {
+    const videos = this.getVideos();
+    const video = videos.find(v => v.id === id);
+    
     if (video) {
-      localStorage.setItem(this.FEATURED_KEY, videoId);
+      video.clicks = (video.clicks || 0) + 1;
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(videos));
       return true;
     }
     return false;
   }
 
-  static getFeaturedVideoId(): string | null {
-    return localStorage.getItem(this.FEATURED_KEY);
+  static getAllTags(): string[] {
+    const videos = this.getVideos();
+    const allTags = videos.flatMap(video => video.tags);
+    return [...new Set(allTags)].sort();
   }
 
-  static getFeaturedVideo(): Video | null {
-    const featuredId = this.getFeaturedVideoId();
-    if (!featuredId) return null;
+  // Sistema de notificações
+  static addNotification(message: string): void {
+    const notifications = this.getNotifications();
+    const newNotification: Notification = {
+      id: crypto.randomUUID(),
+      message,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+
+    notifications.unshift(newNotification);
     
-    return this.getVideoById(featuredId);
-  }
-
-  static removeFeaturedVideo(): void {
-    localStorage.removeItem(this.FEATURED_KEY);
-  }
-
-  // Método específico para adicionar conteúdo diretamente como destaque
-  static addFeaturedContent(video: Omit<Video, 'id' | 'created_at'>): Video {
-    // Adiciona o vídeo à lista geral
-    const newVideo = this.addVideo(video);
-    // Define ele como o vídeo em destaque (substitui o anterior se existir)
-    this.setFeaturedVideo(newVideo.id);
-    return newVideo;
-  }
-
-  // Método para atualizar conteúdo em destaque
-  static updateFeaturedContent(video: Omit<Video, 'id' | 'created_at'>): boolean {
-    const featuredId = this.getFeaturedVideoId();
-    if (featuredId) {
-      return this.updateVideo(featuredId, video);
+    // Manter apenas as últimas 50 notificações
+    if (notifications.length > 50) {
+      notifications.splice(50);
     }
-    return false;
+
+    localStorage.setItem(this.NOTIFICATIONS_KEY, JSON.stringify(notifications));
+    
+    // Disparar evento para atualizar UI
+    window.dispatchEvent(new CustomEvent('newNotification'));
+  }
+
+  static getNotifications(): Notification[] {
+    try {
+      const stored = localStorage.getItem(this.NOTIFICATIONS_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
   }
 }
