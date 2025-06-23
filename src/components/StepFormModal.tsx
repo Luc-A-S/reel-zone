@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Plus, X, ArrowLeft, ArrowRight } from 'lucide-react';
 import { VideoService } from '../services/VideoService';
@@ -95,7 +94,7 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
   const canProceed = () => {
     switch (currentStep) {
       case 1: return title.trim() !== '';
-      case 2: return category !== '';
+      case 2: return true; // category always has a value
       case 3: return url.trim() !== '';
       case 4: return cover.trim() !== '';
       case 5: return description.trim() !== '';
