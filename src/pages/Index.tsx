@@ -6,6 +6,7 @@ import LoginModal from '../components/LoginModal';
 import StepFormModal from '../components/StepFormModal';
 import EmptyState from '../components/EmptyState';
 import VideoViewModal from '../components/VideoViewModal';
+import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
@@ -234,6 +235,8 @@ const Index = () => {
         isOpen={!!selectedVideo}
         onClose={() => setSelectedVideo(null)}
       />
+
+      <PWAInstallPrompt />
     </div>
   );
 };
