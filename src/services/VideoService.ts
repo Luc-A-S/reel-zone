@@ -1,9 +1,9 @@
+
 import { Video, Notification } from '../types';
 
 export class VideoService {
   private static STORAGE_KEY = 'reelzone_videos';
   private static NOTIFICATIONS_KEY = 'reelzone_notifications';
-  private static FEATURED_KEY = 'reelzone_featured';
 
   static getVideos(): Video[] {
     try {
@@ -50,13 +50,6 @@ export class VideoService {
     
     if (filtered.length !== videos.length) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
-      
-      // Remove from featured if it was featured
-      const featuredId = this.getFeaturedVideoId();
-      if (featuredId === id) {
-        this.setFeaturedVideo(null);
-      }
-      
       return true;
     }
     return false;
@@ -122,36 +115,6 @@ export class VideoService {
     const videos = this.getVideos();
     const allTags = videos.flatMap(video => video.tags);
     return [...new Set(allTags)].sort();
-  }
-
-  // Featured content methods
-  static getFeaturedVideoId(): string | null {
-    try {
-      const stored = localStorage.getItem(this.FEATURED_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  static getFeaturedVideo(): Video | null {
-    const featuredId = this.getFeaturedVideoId();
-    if (!featuredId) return null;
-    
-    return this.getVideoById(featuredId);
-  }
-
-  static setFeaturedVideo(videoId: string | null): boolean {
-    try {
-      if (videoId === null) {
-        localStorage.removeItem(this.FEATURED_KEY);
-      } else {
-        localStorage.setItem(this.FEATURED_KEY, JSON.stringify(videoId));
-      }
-      return true;
-    } catch {
-      return false;
-    }
   }
 
   // Sistema de notificações
