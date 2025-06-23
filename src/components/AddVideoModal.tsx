@@ -18,6 +18,12 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
   const [cover, setCover] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
+  const [category, setCategory] = useState<'Filme' | 'Série' | 'Documentário'>('Filme');
+  const [season, setSeason] = useState(1);
+  const [episode, setEpisode] = useState(1);
+  const [episodeTitle, setEpisodeTitle] = useState('');
+  const [episodeCover, setEpisodeCover] = useState('');
+  const [episodeDescription, setEpisodeDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -27,12 +33,24 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       setCover(editingVideo.cover);
       setDescription(editingVideo.description);
       setTags(editingVideo.tags.join(', '));
+      setCategory(editingVideo.category);
+      setSeason(editingVideo.season || 1);
+      setEpisode(editingVideo.episode || 1);
+      setEpisodeTitle(editingVideo.episodeTitle || '');
+      setEpisodeCover(editingVideo.episodeCover || '');
+      setEpisodeDescription(editingVideo.episodeDescription || '');
     } else {
       setTitle('');
       setUrl('');
       setCover('');
       setDescription('');
       setTags('');
+      setCategory('Filme');
+      setSeason(1);
+      setEpisode(1);
+      setEpisodeTitle('');
+      setEpisodeCover('');
+      setEpisodeDescription('');
     }
   }, [editingVideo]);
 
@@ -45,7 +63,15 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       url,
       cover,
       description,
+      category,
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+      ...(category === 'Série' && {
+        season,
+        episode,
+        episodeTitle,
+        episodeCover,
+        episodeDescription,
+      }),
     };
 
     try {
@@ -99,6 +125,97 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
               required
             />
           </div>
+
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium mb-2">
+              Categoria
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as 'Filme' | 'Série' | 'Documentário')}
+              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+            >
+              <option value="Filme">Filme</option>
+              <option value="Série">Série</option>
+              <option value="Documentário">Documentário</option>
+            </select>
+          </div>
+
+          {category === 'Série' && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="season" className="block text-sm font-medium mb-2">
+                    Temporada
+                  </label>
+                  <input
+                    id="season"
+                    type="number"
+                    min="1"
+                    value={season}
+                    onChange={(e) => setSeason(parseInt(e.target.value))}
+                    className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="episode" className="block text-sm font-medium mb-2">
+                    Episódio
+                  </label>
+                  <input
+                    id="episode"
+                    type="number"
+                    min="1"
+                    value={episode}
+                    onChange={(e) => setEpisode(parseInt(e.target.value))}
+                    className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="episodeTitle" className="block text-sm font-medium mb-2">
+                  Título do Episódio
+                </label>
+                <input
+                  id="episodeTitle"
+                  type="text"
+                  value={episodeTitle}
+                  onChange={(e) => setEpisodeTitle(e.target.value)}
+                  className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  placeholder="Título específico do episódio"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="episodeCover" className="block text-sm font-medium mb-2">
+                  URL da Capa do Episódio
+                </label>
+                <input
+                  id="episodeCover"
+                  type="url"
+                  value={episodeCover}
+                  onChange={(e) => setEpisodeCover(e.target.value)}
+                  className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  placeholder="https://exemplo.com/episodio.jpg"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="episodeDescription" className="block text-sm font-medium mb-2">
+                  Descrição do Episódio
+                </label>
+                <textarea
+                  id="episodeDescription"
+                  value={episodeDescription}
+                  onChange={(e) => setEpisodeDescription(e.target.value)}
+                  className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  placeholder="Descrição específica do episódio"
+                  rows={2}
+                />
+              </div>
+            </>
+          )}
 
           <div>
             <label htmlFor="url" className="block text-sm font-medium mb-2">
@@ -155,7 +272,7 @@ const AddVideoModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
-              placeholder="tecnologia, educação, música"
+              placeholder="ação, aventura, comédia"
             />
           </div>
 

@@ -1,12 +1,12 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import VideoCard from '../components/VideoCard';
-import HeroSection from '../components/HeroSection';
 import LoginModal from '../components/LoginModal';
 import AddVideoModal from '../components/AddVideoModal';
-import AddFeaturedModal from '../components/AddFeaturedModal';
 import EmptyState from '../components/EmptyState';
+import VideoViewModal from '../components/VideoViewModal';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
@@ -14,32 +14,25 @@ import { useToast } from '../hooks/use-toast';
 const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
-  const [featuredVideo, setFeaturedVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentSort, setCurrentSort] = useState('createdAt');
-  const [currentOrder, setCurrentOrder] = useState<'asc' | 'desc'>('desc');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isFeaturedModalOpen, setIsFeaturedModalOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
-  const [editingFeatured, setEditingFeatured] = useState<Video | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const loadVideos = () => {
     console.log('Carregando vídeos...');
     const loadedVideos = VideoService.getVideos();
-    const featured = VideoService.getFeaturedVideo();
     
     console.log('Vídeos carregados:', loadedVideos.length);
-    console.log('Vídeo em destaque:', featured);
     
     setVideos(loadedVideos);
-    setFeaturedVideo(featured);
-    applyFiltersAndSort(loadedVideos, searchTerm, currentSort, currentOrder);
+    applyFiltersAndSort(loadedVideos, searchTerm);
   };
 
-  const applyFiltersAndSort = (videoList: Video[], search: string, sortBy: string, order: 'asc' | 'desc') => {
+  const applyFiltersAndSort = (videoList: Video[], search: string) => {
     let filtered = videoList;
 
     // Aplicar busca
@@ -47,22 +40,8 @@ const Index = () => {
       filtered = VideoService.searchVideos(search);
     }
 
-    // Aplicar ordenação
-    filtered.sort((a, b) => {
-      let aValue: any = a[sortBy as keyof Video];
-      let bValue: any = b[sortBy as keyof Video];
-
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (order === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
+    // Ordenar por data de criação (mais recentes primeiro)
+    filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     setFilteredVideos(filtered);
   };
@@ -72,11 +51,12 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    applyFiltersAndSort(videos, searchTerm, currentSort, currentOrder);
-  }, [searchTerm, videos, currentSort, currentOrder]);
+    applyFiltersAndSort(videos, searchTerm);
+  }, [searchTerm, videos]);
 
   const handleVideoClick = (video: Video) => {
-    window.open(video.url, '_blank');
+    VideoService.incrementClicks(video.id);
+    setSelectedVideo(video);
   };
 
   const handleVideoAdded = () => {
@@ -96,24 +76,9 @@ const Index = () => {
     });
   };
 
-  const handleFeaturedAdded = () => {
-    console.log('Conteúdo em destaque adicionado, recarregando...');
-    loadVideos();
-    setEditingFeatured(null);
-    toast({
-      title: "Sucesso!",
-      description: "Conteúdo em destaque adicionado com sucesso!",
-    });
-  };
-
   const handleEditVideo = (video: Video) => {
     setEditingVideo(video);
     setIsAddModalOpen(true);
-  };
-
-  const handleEditFeatured = (video: Video) => {
-    setEditingFeatured(video);
-    setIsFeaturedModalOpen(true);
   };
 
   const handleDeleteVideo = (video: Video) => {
@@ -126,31 +91,8 @@ const Index = () => {
     }
   };
 
-  const handleDeleteFeatured = (video: Video) => {
-    VideoService.removeFeaturedVideo();
-    loadVideos();
-    toast({
-      title: "Sucesso!",
-      description: "Conteúdo removido do destaque!",
-    });
-  };
-
-  const handleAddFeatured = () => {
-    console.log('Abrindo modal para adicionar conteúdo em destaque');
-    setEditingFeatured(null);
-    setIsFeaturedModalOpen(true);
-  };
-
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
-  };
-
-  const handleSortChange = (sortBy: string) => {
-    setCurrentSort(sortBy);
-  };
-
-  const handleOrderChange = (order: 'asc' | 'desc') => {
-    setCurrentOrder(order);
   };
 
   const handleModalClose = () => {
@@ -158,10 +100,10 @@ const Index = () => {
     setEditingVideo(null);
   };
 
-  const handleFeaturedModalClose = () => {
-    setIsFeaturedModalOpen(false);
-    setEditingFeatured(null);
-  };
+  // Organizar vídeos por categoria
+  const filmeVideos = filteredVideos.filter(v => v.category === 'Filme').slice(0, 5);
+  const serieVideos = filteredVideos.filter(v => v.category === 'Série').slice(0, 5);
+  const documentarioVideos = filteredVideos.filter(v => v.category === 'Documentário').slice(0, 5);
 
   return (
     <div className="min-h-screen pb-12">
@@ -170,51 +112,100 @@ const Index = () => {
         onLoginClick={() => setIsLoginModalOpen(true)}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        onSortChange={setCurrentSort}
-        onOrderChange={setCurrentOrder}
-        currentSort={currentSort}
-        currentOrder={currentOrder}
       />
       
-      {/* Hero Section */}
-      <HeroSection
-        featuredVideo={featuredVideo}
-        onPlay={handleVideoClick}
-        onEdit={handleEditFeatured}
-        onDelete={handleDeleteFeatured}
-        onAddFeatured={handleAddFeatured}
-      />
-      
-      <div className="px-6">
+      <div className="px-6 mt-8">
         {filteredVideos.length === 0 ? (
           <EmptyState />
         ) : (
-          <>
-            <div className="max-w-7xl mx-auto mb-8">
-              <h2 className="text-3xl font-bold text-foreground mb-2">
-                Conteúdo em <span className="neon-text">Destaque</span>
-              </h2>
-              <p className="text-muted-foreground font-medium">
-                Descubra conteúdos incríveis selecionados especialmente para você
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
-              {filteredVideos.map((video, index) => (
-                <div
-                  key={video.id}
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <VideoCard
-                    video={video}
-                    onClick={handleVideoClick}
-                    onEdit={handleEditVideo}
-                    onDelete={handleDeleteVideo}
-                  />
+          <div className="max-w-7xl mx-auto space-y-12">
+            {/* Filmes */}
+            {filmeVideos.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-3xl font-bold text-foreground">
+                    <span className="neon-text">Filmes</span>
+                  </h2>
+                  <button className="text-accent hover:text-accent/80 font-medium">
+                    Ver tudo
+                  </button>
                 </div>
-              ))}
-            </div>
-          </>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                  {filmeVideos.map((video, index) => (
+                    <div
+                      key={video.id}
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <VideoCard
+                        video={video}
+                        onClick={handleVideoClick}
+                        onEdit={handleEditVideo}
+                        onDelete={handleDeleteVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Séries */}
+            {serieVideos.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-3xl font-bold text-foreground">
+                    <span className="neon-text">Séries</span>
+                  </h2>
+                  <button className="text-accent hover:text-accent/80 font-medium">
+                    Ver tudo
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                  {serieVideos.map((video, index) => (
+                    <div
+                      key={video.id}
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <VideoCard
+                        video={video}
+                        onClick={handleVideoClick}
+                        onEdit={handleEditVideo}
+                        onDelete={handleDeleteVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Documentários */}
+            {documentarioVideos.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-3xl font-bold text-foreground">
+                    <span className="neon-text">Documentários</span>
+                  </h2>
+                  <button className="text-accent hover:text-accent/80 font-medium">
+                    Ver tudo
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                  {documentarioVideos.map((video, index) => (
+                    <div
+                      key={video.id}
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <VideoCard
+                        video={video}
+                        onClick={handleVideoClick}
+                        onEdit={handleEditVideo}
+                        onDelete={handleDeleteVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -231,11 +222,10 @@ const Index = () => {
         editingVideo={editingVideo}
       />
 
-      <AddFeaturedModal
-        isOpen={isFeaturedModalOpen}
-        onClose={handleFeaturedModalClose}
-        onFeaturedAdded={handleFeaturedAdded}
-        editingVideo={editingFeatured}
+      <VideoViewModal
+        video={selectedVideo}
+        isOpen={!!selectedVideo}
+        onClose={() => setSelectedVideo(null)}
       />
     </div>
   );
