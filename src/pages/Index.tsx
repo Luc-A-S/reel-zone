@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import VideoCard from '../components/VideoCard';
 import LoginModal from '../components/LoginModal';
-import AddVideoModal from '../components/AddVideoModal';
+import StepFormModal from '../components/StepFormModal';
 import EmptyState from '../components/EmptyState';
 import VideoViewModal from '../components/VideoViewModal';
 import { VideoService } from '../services/VideoService';
@@ -110,26 +110,26 @@ const Index = () => {
         onSearchChange={setSearchTerm}
       />
       
-      <div className="px-6 mt-8">
+      <div className="px-4 sm:px-6 mt-8">
         {filteredVideos.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="max-w-7xl mx-auto space-y-12">
+          <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
             {/* Filmes */}
             {filmeVideos.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-bold text-foreground">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                     <span className="neon-text">Filmes</span>
                   </h2>
                   <button 
                     onClick={() => navigate('/category/Filme')}
-                    className="text-accent hover:text-accent/80 font-medium"
+                    className="text-accent hover:text-accent/80 font-medium text-sm sm:text-base"
                   >
                     Ver tudo
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
                   {filmeVideos.map((video, index) => (
                     <div
                       key={video.id}
@@ -150,18 +150,18 @@ const Index = () => {
             {/* Séries */}
             {serieVideos.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-bold text-foreground">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                     <span className="neon-text">Séries</span>
                   </h2>
                   <button 
                     onClick={() => navigate('/category/Serie')}
-                    className="text-accent hover:text-accent/80 font-medium"
+                    className="text-accent hover:text-accent/80 font-medium text-sm sm:text-base"
                   >
                     Ver tudo
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
                   {serieVideos.map((video, index) => (
                     <div
                       key={video.id}
@@ -182,18 +182,18 @@ const Index = () => {
             {/* Documentários */}
             {documentarioVideos.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-bold text-foreground">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                     <span className="neon-text">Documentários</span>
                   </h2>
                   <button 
                     onClick={() => navigate('/category/Documentario')}
-                    className="text-accent hover:text-accent/80 font-medium"
+                    className="text-accent hover:text-accent/80 font-medium text-sm sm:text-base"
                   >
                     Ver tudo
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
                   {documentarioVideos.map((video, index) => (
                     <div
                       key={video.id}
@@ -219,7 +219,7 @@ const Index = () => {
         onClose={() => setIsLoginModalOpen(false)}
       />
       
-      <AddVideoModal
+      <StepFormModal
         isOpen={isAddModalOpen}
         onClose={handleModalClose}
         onVideoAdded={handleVideoAdded}

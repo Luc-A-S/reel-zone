@@ -63,21 +63,21 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="glass-modal p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">{video.title}</h2>
+      <div className="glass-modal p-4 sm:p-6 w-full max-w-6xl max-h-[95vh] overflow-y-auto animate-scale-in">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold truncate pr-4">{video.title}</h2>
           <button 
             onClick={onClose}
-            className="glass-card p-2 smooth-transition hover-glow rounded-xl"
+            className="glass-card p-2 smooth-transition hover-glow rounded-xl flex-shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Player */}
           <div className="lg:col-span-2">
             <div className="aspect-video bg-black rounded-xl overflow-hidden mb-4">
@@ -92,14 +92,14 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xl font-semibold">
+              <h3 className="text-lg sm:text-xl font-semibold">
                 {video.category === 'Série' && currentEpisode 
                   ? `T${currentEpisode.season}E${currentEpisode.episode} - ${currentEpisode.title}`
                   : video.title
                 }
               </h3>
               
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm sm:text-base">
                 {video.category === 'Série' && currentEpisode 
                   ? currentEpisode.description
                   : video.description
@@ -107,13 +107,13 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
               </p>
 
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-xs sm:text-sm font-medium">
                   {video.category}
                 </span>
                 {video.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-muted/20 text-muted-foreground rounded-full text-sm"
+                    className="px-3 py-1 bg-muted/20 text-muted-foreground rounded-full text-xs sm:text-sm"
                   >
                     <Tag className="w-3 h-3 inline mr-1" />
                     {tag}
@@ -121,7 +121,7 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
                 ))}
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   {new Date(video.created_at).toLocaleDateString('pt-BR')}
@@ -149,11 +149,19 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
                   <label className="block text-sm font-medium mb-2">Temporada</label>
                   <select
                     value={selectedSeason}
-                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                    className="w-full glass-card px-3 py-2 rounded-lg text-sm"
+                    onChange={(e) => {
+                      const newSeason = Number(e.target.value);
+                      setSelectedSeason(newSeason);
+                      // Selecionar primeiro episódio da nova temporada
+                      const firstEpisodeOfSeason = video.episodes?.find(ep => ep.season === newSeason && ep.episode === 1);
+                      if (firstEpisodeOfSeason) {
+                        setCurrentEpisode(firstEpisodeOfSeason);
+                      }
+                    }}
+                    className="w-full glass-card px-3 py-2 rounded-lg text-sm bg-card text-foreground"
                   >
                     {seasons.map(season => (
-                      <option key={season} value={season} className="bg-card text-foreground">
+                      <option key={season} value={season}>
                         Temporada {season}
                       </option>
                     ))}
@@ -174,7 +182,7 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
                               : 'glass-card hover:bg-muted/10'
                           }`}
                         >
-                          <div className="font-medium">
+                          <div className="font-medium text-sm">
                             E{episode.episode} - {episode.title}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
