@@ -32,13 +32,27 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
 
   if (!isOpen || !video) return null;
 
-  const getVideoId = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-    return match ? match[1] : '';
+  const getEmbedUrl = (url: string) => {
+    // Google Drive
+    if (url.includes('drive.google.com')) {
+      const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileIdMatch) {
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+      }
+    }
+    
+    // YouTube
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    if (youtubeMatch) {
+      return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    }
+    
+    // Retorna a URL original se não for reconhecida
+    return url;
   };
 
   const currentContent = video.category === 'Série' && currentEpisode ? currentEpisode : video;
-  const embedUrl = `https://www.youtube.com/embed/${getVideoId(currentContent.url)}`;
+  const embedUrl = getEmbedUrl(currentContent.url);
 
   const seasons = video.category === 'Série' && video.episodes 
     ? [...new Set(video.episodes.map(ep => ep.season))].sort((a, b) => a - b)
@@ -146,29 +160,31 @@ const VideoViewModal = ({ isOpen, onClose, video }: VideoViewModalProps) => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Episódios</label>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {episodes.map(episode => (
-                      <button
-                        key={episode.id}
-                        onClick={() => setCurrentEpisode(episode)}
-                        className={`w-full text-left p-3 rounded-lg smooth-transition ${
-                          currentEpisode?.id === episode.id
-                            ? 'bg-primary/20 border border-primary/30'
-                            : 'glass-card hover:bg-muted/10'
-                        }`}
-                      >
-                        <div className="font-medium">
-                          E{episode.episode} - {episode.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {episode.description}
-                        </div>
-                      </button>
-                    ))}
+                {episodes.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Episódios</label>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {episodes.map(episode => (
+                        <button
+                          key={episode.id}
+                          onClick={() => setCurrentEpisode(episode)}
+                          className={`w-full text-left p-3 rounded-lg smooth-transition ${
+                            currentEpisode?.id === episode.id
+                              ? 'bg-primary/20 border border-primary/30'
+                              : 'glass-card hover:bg-muted/10'
+                          }`}
+                        >
+                          <div className="font-medium">
+                            E{episode.episode} - {episode.title}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {episode.description}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>

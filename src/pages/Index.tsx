@@ -91,10 +91,6 @@ const Index = () => {
     }
   };
 
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
-  };
-
   const handleModalClose = () => {
     setIsAddModalOpen(false);
     setEditingVideo(null);
@@ -126,7 +122,10 @@ const Index = () => {
                   <h2 className="text-3xl font-bold text-foreground">
                     <span className="neon-text">Filmes</span>
                   </h2>
-                  <button className="text-accent hover:text-accent/80 font-medium">
+                  <button 
+                    onClick={() => navigate('/category/Filme')}
+                    className="text-accent hover:text-accent/80 font-medium"
+                  >
                     Ver tudo
                   </button>
                 </div>
@@ -155,7 +154,10 @@ const Index = () => {
                   <h2 className="text-3xl font-bold text-foreground">
                     <span className="neon-text">Séries</span>
                   </h2>
-                  <button className="text-accent hover:text-accent/80 font-medium">
+                  <button 
+                    onClick={() => navigate('/category/Serie')}
+                    className="text-accent hover:text-accent/80 font-medium"
+                  >
                     Ver tudo
                   </button>
                 </div>
@@ -184,7 +186,10 @@ const Index = () => {
                   <h2 className="text-3xl font-bold text-foreground">
                     <span className="neon-text">Documentários</span>
                   </h2>
-                  <button className="text-accent hover:text-accent/80 font-medium">
+                  <button 
+                    onClick={() => navigate('/category/Documentario')}
+                    className="text-accent hover:text-accent/80 font-medium"
+                  >
                     Ver tudo
                   </button>
                 </div>
