@@ -9,6 +9,7 @@ import VideoViewModal from '../components/VideoViewModal';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import FloatingFavoritesButton from '../components/FloatingFavoritesButton';
 import FavoritesModal from '../components/FavoritesModal';
+import FeaturedContent from '../components/FeaturedContent';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
@@ -16,6 +17,7 @@ import { useToast } from '../hooks/use-toast';
 const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
+  const [featuredVideo, setFeaturedVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -33,6 +35,10 @@ const Index = () => {
     
     setVideos(loadedVideos);
     applyFiltersAndSort(loadedVideos, searchTerm);
+    
+    // Load featured video
+    const featured = VideoService.getFeaturedVideo();
+    setFeaturedVideo(featured);
   };
 
   const applyFiltersAndSort = (videoList: Video[], search: string) => {
@@ -113,7 +119,16 @@ const Index = () => {
         onSearchChange={setSearchTerm}
       />
       
+      {/* Featured Content Section */}
       <div className="px-3 sm:px-4 lg:px-6 mt-4 sm:mt-8">
+        <FeaturedContent 
+          video={featuredVideo}
+          onVideoClick={handleVideoClick}
+          onEdit={handleEditVideo}
+        />
+      </div>
+      
+      <div className="px-3 sm:px-4 lg:px-6">
         {filteredVideos.length === 0 ? (
           <EmptyState />
         ) : (
