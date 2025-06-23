@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -101,7 +100,7 @@ const CategoryPage = () => {
   };
 
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen pb-8 sm:pb-12">
       <TopBar 
         onAddClick={() => setIsAddModalOpen(true)}
         onLoginClick={() => setIsLoginModalOpen(true)}
@@ -109,31 +108,32 @@ const CategoryPage = () => {
         onSearchChange={setSearchTerm}
       />
       
-      <div className="px-4 sm:px-6 mt-8">
+      <div className="px-3 sm:px-4 lg:px-6 mt-4 sm:mt-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 lg:mb-8">
             <button
               onClick={() => navigate('/')}
-              className="glass-card p-3 smooth-transition hover-glow press-effect rounded-xl"
+              className="glass-card p-2 sm:p-3 smooth-transition hover-glow press-effect rounded-xl"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-            <h1 className="text-2xl sm:text-4xl font-bold">
+            <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold">
               <span className="neon-text">{categoryName}</span>
             </h1>
           </div>
 
           {videos.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-base sm:text-lg">
+            <div className="text-center py-8 sm:py-12">
+              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-4">
                 Nenhum conteúdo encontrado {searchTerm && `para "${searchTerm}"`}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
               {videos.map((video, index) => (
                 <div
                   key={video.id}
+                  className="animate-fade-up"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <VideoCard

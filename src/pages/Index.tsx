@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
@@ -102,7 +101,7 @@ const Index = () => {
   const documentarioVideos = filteredVideos.filter(v => v.category === 'Documentário').slice(0, 5);
 
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen pb-8 sm:pb-12">
       <TopBar 
         onAddClick={() => setIsAddModalOpen(true)}
         onLoginClick={() => setIsLoginModalOpen(true)}
@@ -110,29 +109,30 @@ const Index = () => {
         onSearchChange={setSearchTerm}
       />
       
-      <div className="px-4 sm:px-6 mt-8">
+      <div className="px-3 sm:px-4 lg:px-6 mt-4 sm:mt-8">
         {filteredVideos.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
+          <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 lg:space-y-12">
             {/* Filmes */}
             {filmeVideos.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
                     <span className="neon-text">Filmes</span>
                   </h2>
                   <button 
                     onClick={() => navigate('/category/Filme')}
-                    className="text-accent hover:text-accent/80 font-medium text-sm sm:text-base"
+                    className="text-accent hover:text-accent/80 font-medium text-xs sm:text-sm lg:text-base smooth-transition"
                   >
                     Ver tudo
                   </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
                   {filmeVideos.map((video, index) => (
                     <div
                       key={video.id}
+                      className="animate-fade-up"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <VideoCard
@@ -150,21 +150,22 @@ const Index = () => {
             {/* Séries */}
             {serieVideos.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
                     <span className="neon-text">Séries</span>
                   </h2>
                   <button 
                     onClick={() => navigate('/category/Serie')}
-                    className="text-accent hover:text-accent/80 font-medium text-sm sm:text-base"
+                    className="text-accent hover:text-accent/80 font-medium text-xs sm:text-sm lg:text-base smooth-transition"
                   >
                     Ver tudo
                   </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
                   {serieVideos.map((video, index) => (
                     <div
                       key={video.id}
+                      className="animate-fade-up"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <VideoCard
@@ -182,21 +183,22 @@ const Index = () => {
             {/* Documentários */}
             {documentarioVideos.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
                     <span className="neon-text">Documentários</span>
                   </h2>
                   <button 
                     onClick={() => navigate('/category/Documentario')}
-                    className="text-accent hover:text-accent/80 font-medium text-sm sm:text-base"
+                    className="text-accent hover:text-accent/80 font-medium text-xs sm:text-sm lg:text-base smooth-transition"
                   >
                     Ver tudo
                   </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
                   {documentarioVideos.map((video, index) => (
                     <div
                       key={video.id}
+                      className="animate-fade-up"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <VideoCard

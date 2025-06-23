@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, X, ArrowLeft, ArrowRight } from 'lucide-react';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
+import { useIsMobile } from '../hooks/use-mobile';
 
 interface StepFormModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
   const [episodeCover, setEpisodeCover] = useState('');
   const [episodeDescription, setEpisodeDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const isMobile = useIsMobile();
 
   const totalSteps = category === 'Série' ? 8 : 5;
 
@@ -122,12 +124,12 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 1:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Título do Conteúdo</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>Título do Conteúdo</h3>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="Digite o título do conteúdo"
               autoFocus
             />
@@ -137,19 +139,19 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 2:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Categoria</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>Categoria</h3>
             <div className="grid grid-cols-1 gap-3">
               {(['Filme', 'Série', 'Documentário'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`p-4 rounded-xl smooth-transition ${
+                  className={`p-3 sm:p-4 rounded-xl smooth-transition ${
                     category === cat
                       ? 'bg-primary/20 border-2 border-primary'
                       : 'glass-card hover:bg-muted/10'
                   }`}
                 >
-                  <span className="font-medium">{cat}</span>
+                  <span className={`font-medium ${isMobile ? 'text-sm' : ''}`}>{cat}</span>
                 </button>
               ))}
             </div>
@@ -159,12 +161,12 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 3:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">URL do Vídeo</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>URL do Vídeo</h3>
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="https://youtube.com/watch?v=... ou https://drive.google.com/..."
             />
           </div>
@@ -173,12 +175,12 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 4:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">URL da Capa</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>URL da Capa</h3>
             <input
               type="url"
               value={cover}
               onChange={(e) => setCover(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="https://exemplo.com/imagem.jpg"
             />
             {cover && (
@@ -186,7 +188,7 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
                 <img
                   src={cover}
                   alt="Preview da capa"
-                  className="w-32 h-48 object-cover rounded-xl mx-auto"
+                  className={`${isMobile ? 'w-24 h-32' : 'w-32 h-48'} object-cover rounded-xl mx-auto`}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
@@ -199,21 +201,21 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 5:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Descrição</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>Descrição</h3>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="Descreva o conteúdo do vídeo"
-              rows={4}
+              rows={isMobile ? 3 : 4}
             />
             <div className="mt-4">
-              <h4 className="text-sm font-medium mb-2">Tags (separadas por vírgula)</h4>
+              <h4 className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium mb-2`}>Tags (separadas por vírgula)</h4>
               <input
                 type="text"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
                 placeholder="ação, aventura, comédia"
               />
             </div>
@@ -223,26 +225,26 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 6:
         return category === 'Série' ? (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Temporada e Episódio</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>Temporada e Episódio</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Temporada</label>
+                <label className={`block ${isMobile ? 'text-xs' : 'text-sm'} font-medium mb-2`}>Temporada</label>
                 <input
                   type="number"
                   min="1"
                   value={season}
                   onChange={(e) => setSeason(parseInt(e.target.value))}
-                  className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Episódio</label>
+                <label className={`block ${isMobile ? 'text-xs' : 'text-sm'} font-medium mb-2`}>Episódio</label>
                 <input
                   type="number"
                   min="1"
                   value={episode}
                   onChange={(e) => setEpisode(parseInt(e.target.value))}
-                  className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+                  className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
                 />
               </div>
             </div>
@@ -252,12 +254,12 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 7:
         return category === 'Série' ? (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Título do Episódio</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>Título do Episódio</h3>
             <input
               type="text"
               value={episodeTitle}
               onChange={(e) => setEpisodeTitle(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="Título específico do episódio"
             />
           </div>
@@ -266,20 +268,20 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
       case 8:
         return category === 'Série' ? (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Capa e Descrição do Episódio</h3>
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>Capa e Descrição do Episódio</h3>
             <input
               type="url"
               value={episodeCover}
               onChange={(e) => setEpisodeCover(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="URL da capa do episódio"
             />
             <textarea
               value={episodeDescription}
               onChange={(e) => setEpisodeDescription(e.target.value)}
-              className="w-full glass-card px-4 py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition"
+              className={`w-full glass-card px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:ring-2 focus:ring-accent focus:outline-none smooth-transition ${isMobile ? 'text-sm' : ''}`}
               placeholder="Descrição específica do episódio"
-              rows={3}
+              rows={isMobile ? 2 : 3}
             />
           </div>
         ) : null;
@@ -292,14 +294,14 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="glass-modal p-6 w-full max-w-md animate-scale-in">
-        <div className="flex items-center justify-between mb-6">
+      <div className={`glass-modal p-4 sm:p-6 w-full ${isMobile ? 'max-w-sm' : 'max-w-md'} animate-scale-in max-h-[90vh] overflow-y-auto`}>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-2">
-            <Plus className="w-5 h-5 text-accent" />
-            <h2 className="text-xl font-semibold">
+            <Plus className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-accent`} />
+            <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold`}>
               {editingVideo ? 'Editar Conteúdo' : 'Adicionar Conteúdo'}
             </h2>
           </div>
@@ -312,12 +314,12 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
         </div>
 
         {/* Progress indicator */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-muted-foreground">
+            <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
               Etapa {currentStep} de {totalSteps}
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
               {Math.round((currentStep / totalSteps) * 100)}%
             </span>
           </div>
@@ -330,26 +332,26 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
         </div>
 
         {/* Step content */}
-        <div className="min-h-[200px] mb-6">
+        <div className={`${isMobile ? 'min-h-[180px]' : 'min-h-[200px]'} mb-4 sm:mb-6`}>
           {renderStep()}
         </div>
 
         {/* Navigation buttons */}
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-3">
           <button
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="flex items-center gap-2 px-4 py-2 glass-card rounded-xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 glass-card rounded-xl smooth-transition hover-glow disabled:opacity-50 disabled:cursor-not-allowed ${isMobile ? 'text-sm' : ''}`}
           >
             <ArrowLeft className="w-4 h-4" />
-            Anterior
+            {!isMobile && 'Anterior'}
           </button>
 
           {currentStep === totalSteps ? (
             <button
               onClick={handleSubmit}
               disabled={isLoading || !canProceed()}
-              className="bg-accent text-background px-6 py-2 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50"
+              className={`bg-accent text-background px-4 sm:px-6 py-2 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50 ${isMobile ? 'text-sm' : ''}`}
             >
               {isLoading ? 
                 (editingVideo ? 'Atualizando...' : 'Publicando...') : 
@@ -360,9 +362,9 @@ const StepFormModal = ({ isOpen, onClose, onVideoAdded, onVideoUpdated, editingV
             <button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="flex items-center gap-2 bg-accent text-background px-4 py-2 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50"
+              className={`flex items-center gap-2 bg-accent text-background px-3 sm:px-4 py-2 rounded-xl font-semibold smooth-transition hover-glow press-effect disabled:opacity-50 ${isMobile ? 'text-sm' : ''}`}
             >
-              Próximo
+              {!isMobile && 'Próximo'}
               <ArrowRight className="w-4 h-4" />
             </button>
           )}
