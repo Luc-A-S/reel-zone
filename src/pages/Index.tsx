@@ -1,188 +1,269 @@
+
 import { useState, useEffect } from 'react';
-import { Video } from '../types';
-import { VideoService } from '../services/VideoService';
+import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import VideoCard from '../components/VideoCard';
-import VideoViewModal from '../components/VideoViewModal';
-import AddVideoModal from '../components/AddVideoModal';
-import StepFormModal from '../components/StepFormModal';
 import LoginModal from '../components/LoginModal';
-import UserAuthModal from '../components/UserAuthModal';
-import FeaturedContent from '../components/FeaturedContent';
-import FilterControls from '../components/FilterControls';
+import StepFormModal from '../components/StepFormModal';
 import EmptyState from '../components/EmptyState';
-import FloatingFavoritesButton from '../components/FloatingFavoritesButton';
+import VideoViewModal from '../components/VideoViewModal';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
+import FloatingFavoritesButton from '../components/FloatingFavoritesButton';
+import FavoritesModal from '../components/FavoritesModal';
+import FeaturedContent from '../components/FeaturedContent';
+import { VideoService } from '../services/VideoService';
+import { Video } from '../types';
+import { useToast } from '../hooks/use-toast';
 
 const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showStepForm, setShowStepForm] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showUserAuthModal, setShowUserAuthModal] = useState(false);
-  const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'Todos' | 'Filme' | 'Série' | 'Documentário'>('Todos');
-  const [selectedTag, setSelectedTag] = useState<string>('');
-
-  useEffect(() => {
-    console.log('Carregando vídeos...');
-    loadVideos();
-  }, []);
-
-  useEffect(() => {
-    filterVideos();
-  }, [videos, searchTerm, selectedCategory, selectedTag]);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<Video | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const loadVideos = () => {
+    console.log('Carregando vídeos...');
     const loadedVideos = VideoService.getVideos();
+    
     console.log('Vídeos carregados:', loadedVideos.length);
+    
     setVideos(loadedVideos);
+    applyFiltersAndSort(loadedVideos, searchTerm);
   };
 
-  const filterVideos = () => {
-    let filtered = videos;
+  const applyFiltersAndSort = (videoList: Video[], search: string) => {
+    let filtered = videoList;
 
-    if (searchTerm) {
-      filtered = VideoService.searchVideos(searchTerm);
+    // Aplicar busca
+    if (search.trim()) {
+      filtered = VideoService.searchVideos(search);
     }
 
-    if (selectedCategory !== 'Todos') {
-      filtered = filtered.filter(video => video.category === selectedCategory);
-    }
-
-    if (selectedTag) {
-      filtered = filtered.filter(video => 
-        video.tags.some(tag => tag.toLowerCase().includes(selectedTag.toLowerCase()))
-      );
-    }
+    // Ordenar por data de criação (mais recentes primeiro)
+    filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     setFilteredVideos(filtered);
   };
 
+  useEffect(() => {
+    loadVideos();
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndSort(videos, searchTerm);
+  }, [searchTerm, videos]);
+
   const handleVideoClick = (video: Video) => {
     VideoService.incrementClicks(video.id);
     setSelectedVideo(video);
-    setShowVideoModal(true);
-    loadVideos();
   };
 
-  const handleVideoEdit = (video: Video) => {
+  const handleVideoAdded = () => {
+    loadVideos();
+    toast({
+      title: "Sucesso!",
+      description: "Conteúdo publicado com sucesso!",
+    });
+  };
+
+  const handleVideoUpdated = () => {
+    loadVideos();
+    setEditingVideo(null);
+    toast({
+      title: "Sucesso!",
+      description: "Conteúdo atualizado com sucesso!",
+    });
+  };
+
+  const handleEditVideo = (video: Video) => {
     setEditingVideo(video);
-    setShowStepForm(true);
+    setIsAddModalOpen(true);
   };
 
-  const handleAddVideo = () => {
-    setEditingVideo(null);
-    setShowAddModal(true);
+  const handleDeleteVideo = (video: Video) => {
+    if (VideoService.deleteVideo(video.id)) {
+      loadVideos();
+      toast({
+        title: "Sucesso!",
+        description: "Conteúdo excluído com sucesso!",
+      });
+    }
   };
 
-  const handleStepFormVideo = () => {
-    setEditingVideo(null);
-    setShowStepForm(true);
-  };
-
-  const handleVideoSaved = () => {
-    loadVideos();
-    setShowAddModal(false);
-    setShowStepForm(false);
+  const handleModalClose = () => {
+    setIsAddModalOpen(false);
     setEditingVideo(null);
   };
 
   const handleFeaturedChange = () => {
+    // Força atualização do componente quando o conteúdo em destaque muda
     loadVideos();
   };
 
-  const handleClearFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory('Todos');
-    setSelectedTag('');
-  };
+  // Organizar vídeos por categoria
+  const filmeVideos = filteredVideos.filter(v => v.category === 'Filme').slice(0, 5);
+  const serieVideos = filteredVideos.filter(v => v.category === 'Série').slice(0, 5);
+  const documentarioVideos = filteredVideos.filter(v => v.category === 'Documentário').slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+    <div className="min-h-screen pb-24 sm:pb-28">
       <TopBar 
-        onAddClick={handleAddVideo}
-        onLoginClick={() => setShowLoginModal(true)}
-        onUserAuthClick={() => setShowUserAuthModal(true)}
+        onAddClick={() => setIsAddModalOpen(true)}
+        onLoginClick={() => setIsLoginModalOpen(true)}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
       />
       
-      <div className="px-2 sm:px-4 md:px-6 lg:px-8 pb-8">
-        <FeaturedContent 
+      <div className="px-3 sm:px-4 lg:px-6 mt-4 sm:mt-8">
+        {/* Featured Content */}
+        <FeaturedContent
           onVideoClick={handleVideoClick}
-          onVideoEdit={handleVideoEdit}
+          onVideoEdit={handleEditVideo}
           onFeaturedChange={handleFeaturedChange}
-        />
-        
-        <FilterControls
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          selectedTag={selectedTag}
-          onTagChange={setSelectedTag}
-          onClearFilters={handleClearFilters}
-          videos={videos}
         />
 
         {filteredVideos.length === 0 ? (
-          <EmptyState 
-            searchTerm={searchTerm}
-            selectedCategory={selectedCategory}
-            selectedTag={selectedTag}
-            onAddVideo={handleStepFormVideo}
-            onClearFilters={handleClearFilters}
-          />
+          <EmptyState />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-            {filteredVideos.map((video) => (
-              <VideoCard
-                key={video.id}
-                video={video}
-                onClick={() => handleVideoClick(video)}
-                onEdit={() => handleVideoEdit(video)}
-              />
-            ))}
+          <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 lg:space-y-12">
+            {/* Filmes */}
+            {filmeVideos.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                    <span className="neon-text">Filmes</span>
+                  </h2>
+                  <button 
+                    onClick={() => navigate('/category/Filme')}
+                    className="text-accent hover:text-accent/80 font-medium text-xs sm:text-sm lg:text-base smooth-transition"
+                  >
+                    Ver tudo
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
+                  {filmeVideos.map((video, index) => (
+                    <div
+                      key={video.id}
+                      className="animate-fade-up"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <VideoCard
+                        video={video}
+                        onClick={handleVideoClick}
+                        onEdit={handleEditVideo}
+                        onDelete={handleDeleteVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Séries */}
+            {serieVideos.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                    <span className="neon-text">Séries</span>
+                  </h2>
+                  <button 
+                    onClick={() => navigate('/category/Serie')}
+                    className="text-accent hover:text-accent/80 font-medium text-xs sm:text-sm lg:text-base smooth-transition"
+                  >
+                    Ver tudo
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
+                  {serieVideos.map((video, index) => (
+                    <div
+                      key={video.id}
+                      className="animate-fade-up"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <VideoCard
+                        video={video}
+                        onClick={handleVideoClick}
+                        onEdit={handleEditVideo}
+                        onDelete={handleDeleteVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Documentários */}
+            {documentarioVideos.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                    <span className="neon-text">Documentários</span>
+                  </h2>
+                  <button 
+                    onClick={() => navigate('/category/Documentario')}
+                    className="text-accent hover:text-accent/80 font-medium text-xs sm:text-sm lg:text-base smooth-transition"
+                  >
+                    Ver tudo
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 xl:gap-6">
+                  {documentarioVideos.map((video, index) => (
+                    <div
+                      key={video.id}
+                      className="animate-fade-up"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <VideoCard
+                        video={video}
+                        onClick={handleVideoClick}
+                        onEdit={handleEditVideo}
+                        onDelete={handleDeleteVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <FloatingFavoritesButton />
-      <PWAInstallPrompt />
+      <FloatingFavoritesButton onClick={() => setIsFavoritesModalOpen(true)} />
 
-      {/* Modals */}
+      <LoginModal 
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
+      
+      <StepFormModal
+        isOpen={isAddModalOpen}
+        onClose={handleModalClose}
+        onVideoAdded={handleVideoAdded}
+        onVideoUpdated={handleVideoUpdated}
+        editingVideo={editingVideo}
+      />
+
       <VideoViewModal
         video={selectedVideo}
-        isOpen={showVideoModal}
-        onClose={() => setShowVideoModal(false)}
+        isOpen={!!selectedVideo}
+        onClose={() => setSelectedVideo(null)}
       />
 
-      <AddVideoModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onVideoSaved={handleVideoSaved}
-        editingVideo={editingVideo}
+      <FavoritesModal
+        isOpen={isFavoritesModalOpen}
+        onClose={() => setIsFavoritesModalOpen(false)}
+        onVideoClick={handleVideoClick}
+        onVideoEdit={handleEditVideo}
+        onVideoDelete={handleDeleteVideo}
       />
 
-      <StepFormModal
-        isOpen={showStepForm}
-        onClose={() => setShowStepForm(false)}
-        onVideoSaved={handleVideoSaved}
-        editingVideo={editingVideo}
-      />
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-
-      <UserAuthModal
-        isOpen={showUserAuthModal}
-        onClose={() => setShowUserAuthModal(false)}
-      />
+      <PWAInstallPrompt />
     </div>
   );
 };

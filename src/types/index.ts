@@ -1,14 +1,36 @@
 
 export interface Video {
   id: string;
+  url: string;
+  cover: string;
+  title: string;
+  description: string;
+  tags: string[];
+  created_at: string;
+  category: 'Filme' | 'Série' | 'Documentário';
+  clicks: number;
+  // Campos específicos para séries
+  season?: number;
+  episode?: number;
+  episodeTitle?: string;
+  episodeCover?: string;
+  episodeDescription?: string;
+  episodes?: Episode[];
+}
+
+export interface Episode {
+  id: string;
+  season: number;
+  episode: number;
   title: string;
   description: string;
   cover: string;
-  video_url: string;
-  category: 'Filme' | 'Série' | 'Documentário';
-  tags: string[];
-  created_at: string;
-  clicks: number;
+  url: string;
+}
+
+export interface AdminSession {
+  token: string;
+  expiresAt: number;
 }
 
 export interface Notification {
@@ -17,23 +39,3 @@ export interface Notification {
   timestamp: string;
   read: boolean;
 }
-
-export interface AdminSession {
-  token: string;
-  expiresAt: number;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  created_at: string;
-}
-
-export interface UserSession {
-  user: User;
-  token: string;
-  expiresAt: number;
-}
-
-export type AuthUser = User | null;
