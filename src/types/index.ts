@@ -1,4 +1,3 @@
-
 export interface Video {
   id: string;
   url: string;
@@ -38,4 +37,13 @@ export interface Notification {
   message: string;
   timestamp: string;
   read: boolean;
+}
+
+export interface UserType {
+  type: 'admin' | 'user' | 'guest';
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+  };
 }
