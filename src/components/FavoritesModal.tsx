@@ -5,6 +5,7 @@ import { Video } from '../types';
 import { VideoService } from '../services/VideoService';
 import { FavoritesService } from '../services/FavoritesService';
 import VideoCard from './VideoCard';
+import { useAuth } from '../hooks/useAuth';
 
 interface FavoritesModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const FavoritesModal = ({
   onVideoDelete 
 }: FavoritesModalProps) => {
   const [favoriteVideos, setFavoriteVideos] = useState<Video[]>([]);
+  const { isAdmin } = useAuth();
 
   const loadFavorites = () => {
     const favoriteIds = FavoritesService.getFavorites();
@@ -85,8 +87,8 @@ const FavoritesModal = ({
                   <VideoCard
                     video={video}
                     onClick={onVideoClick}
-                    onEdit={onVideoEdit}
-                    onDelete={handleVideoDelete}
+                    onEdit={isAdmin ? onVideoEdit : undefined}
+                    onDelete={isAdmin ? handleVideoDelete : undefined}
                   />
                 </div>
               ))}

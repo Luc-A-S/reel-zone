@@ -14,6 +14,7 @@ import FeaturedContent from '../components/FeaturedContent';
 import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../hooks/useAuth';
 
 const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -26,6 +27,7 @@ const Index = () => {
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAdmin, isGuest } = useAuth();
 
   const loadVideos = () => {
     console.log('Carregando vídeos...');
@@ -156,8 +158,8 @@ const Index = () => {
                       <VideoCard
                         video={video}
                         onClick={handleVideoClick}
-                        onEdit={handleEditVideo}
-                        onDelete={handleDeleteVideo}
+                        onEdit={isAdmin ? handleEditVideo : undefined}
+                        onDelete={isAdmin ? handleDeleteVideo : undefined}
                       />
                     </div>
                   ))}
@@ -189,8 +191,8 @@ const Index = () => {
                       <VideoCard
                         video={video}
                         onClick={handleVideoClick}
-                        onEdit={handleEditVideo}
-                        onDelete={handleDeleteVideo}
+                        onEdit={isAdmin ? handleEditVideo : undefined}
+                        onDelete={isAdmin ? handleDeleteVideo : undefined}
                       />
                     </div>
                   ))}
@@ -222,8 +224,8 @@ const Index = () => {
                       <VideoCard
                         video={video}
                         onClick={handleVideoClick}
-                        onEdit={handleEditVideo}
-                        onDelete={handleDeleteVideo}
+                        onEdit={isAdmin ? handleEditVideo : undefined}
+                        onDelete={isAdmin ? handleDeleteVideo : undefined}
                       />
                     </div>
                   ))}
@@ -234,20 +236,26 @@ const Index = () => {
         )}
       </div>
 
-      <FloatingFavoritesButton onClick={() => setIsFavoritesModalOpen(true)} />
+      {/* Botão de favoritos - só aparece para usuários logados */}
+      {!isGuest && (
+        <FloatingFavoritesButton onClick={() => setIsFavoritesModalOpen(true)} />
+      )}
 
       <LoginModal 
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
       />
       
-      <StepFormModal
-        isOpen={isAddModalOpen}
-        onClose={handleModalClose}
-        onVideoAdded={handleVideoAdded}
-        onVideoUpdated={handleVideoUpdated}
-        editingVideo={editingVideo}
-      />
+      {/* Modal de adicionar/editar - apenas para admin */}
+      {isAdmin && (
+        <StepFormModal
+          isOpen={isAddModalOpen}
+          onClose={handleModalClose}
+          onVideoAdded={handleVideoAdded}
+          onVideoUpdated={handleVideoUpdated}
+          editingVideo={editingVideo}
+        />
+      )}
 
       <VideoViewModal
         video={selectedVideo}
@@ -255,13 +263,16 @@ const Index = () => {
         onClose={() => setSelectedVideo(null)}
       />
 
-      <FavoritesModal
-        isOpen={isFavoritesModalOpen}
-        onClose={() => setIsFavoritesModalOpen(false)}
-        onVideoClick={handleVideoClick}
-        onVideoEdit={handleEditVideo}
-        onVideoDelete={handleDeleteVideo}
-      />
+      {/* Modal de favoritos - só para usuários logados */}
+      {!isGuest && (
+        <FavoritesModal
+          isOpen={isFavoritesModalOpen}
+          onClose={() => setIsFavoritesModalOpen(false)}
+          onVideoClick={handleVideoClick}
+          onVideoEdit={isAdmin ? handleEditVideo : undefined}
+          onVideoDelete={isAdmin ? handleDeleteVideo : undefined}
+        />
+      )}
 
       <PWAInstallPrompt />
     </div>

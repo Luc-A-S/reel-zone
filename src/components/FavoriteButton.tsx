@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { FavoritesService } from '../services/FavoritesService';
 import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../hooks/useAuth';
 
 interface FavoriteButtonProps {
   videoId: string;
@@ -11,10 +12,18 @@ interface FavoriteButtonProps {
 const FavoriteButton = ({ videoId, videoTitle }: FavoriteButtonProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const { toast } = useToast();
+  const { isAuthenticated, isGuest } = useAuth();
 
   useEffect(() => {
-    setIsFavorite(FavoritesService.isFavorite(videoId));
-  }, [videoId]);
+    if (!isGuest) {
+      setIsFavorite(FavoritesService.isFavorite(videoId));
+    }
+  }, [videoId, isGuest]);
+
+  // Não mostrar o botão para usuários não logados
+  if (isGuest) {
+    return null;
+  }
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();

@@ -22,12 +22,12 @@ const TopBar = ({
   searchTerm, 
   onSearchChange
 }: TopBarProps) => {
-  const { isAuthenticated, timeRemaining, logout } = useAuth();
+  const { isAuthenticated, timeRemaining, logout, isAdmin, isUser, isGuest, userType } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const isMobile = useIsMobile();
 
   const handleAddClick = () => {
-    if (isAuthenticated) {
+    if (isAdmin) {
       onAddClick();
     } else {
       onLoginClick();
@@ -45,6 +45,12 @@ const TopBar = ({
   const handleConfirmLogout = () => {
     logout();
     setShowLogoutDialog(false);
+  };
+
+  const getUserDisplayName = () => {
+    if (isAdmin) return 'Admin';
+    if (isUser && userType.user) return userType.user.name;
+    return '';
   };
 
   return (
@@ -87,6 +93,13 @@ const TopBar = ({
                 <NotificationBell />
               </div>
               
+              {/* Nome do usuário quando logado */}
+              {isAuthenticated && !isMobile && (
+                <div className="text-xs sm:text-sm text-muted-foreground px-2">
+                  Olá, {getUserDisplayName()}
+                </div>
+              )}
+              
               {/* Timer apenas no desktop quando logado */}
               {isAuthenticated && !isMobile && (
                 <div className="scale-90 sm:scale-95 md:scale-100">
@@ -111,7 +124,7 @@ const TopBar = ({
                 </button>
               )}
               
-              {/* Botão de adicionar/login */}
+              {/* Botão de adicionar/login - só para admin ou guest */}
               <button
                 onClick={handleAddClick}
                 className={`neon-border bg-primary/10 smooth-transition hover:bg-primary/20 press-effect ${
@@ -119,7 +132,7 @@ const TopBar = ({
                     ? 'p-1 rounded-md scale-75' 
                     : 'p-1.5 sm:p-2 md:p-2.5 rounded-md sm:rounded-lg md:rounded-xl scale-90 sm:scale-95 md:scale-100'
                 }`}
-                aria-label={isAuthenticated ? "Adicionar conteúdo" : "Fazer login"}
+                aria-label={isAdmin ? "Adicionar conteúdo" : "Fazer login"}
               >
                 <Plus className={`text-primary ${isMobile ? 'w-3.5 h-3.5' : 'w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5'}`} />
               </button>
@@ -130,6 +143,13 @@ const TopBar = ({
           {isAuthenticated && isMobile && (
             <div className="mt-1.5 flex justify-center scale-75">
               <CountdownTimer timeRemaining={timeRemaining} />
+            </div>
+          )}
+
+          {/* Nome do usuário no mobile quando logado */}
+          {isAuthenticated && isMobile && (
+            <div className="mt-1 text-center text-xs text-muted-foreground">
+              Olá, {getUserDisplayName()}
             </div>
           )}
         </div>

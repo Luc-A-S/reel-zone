@@ -11,6 +11,7 @@ import { VideoService } from '../services/VideoService';
 import { Video } from '../types';
 import { useToast } from '../hooks/use-toast';
 import { useIsMobile } from '../hooks/use-mobile';
+import { useAuth } from '../hooks/useAuth';
 
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
@@ -23,6 +24,7 @@ const CategoryPage = () => {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { isAdmin } = useAuth();
 
   const categoryName = category === 'Filme' ? 'Filmes' : 
                       category === 'Serie' ? 'Séries' : 
@@ -142,8 +144,8 @@ const CategoryPage = () => {
                   <VideoCard
                     video={video}
                     onClick={handleVideoClick}
-                    onEdit={handleEditVideo}
-                    onDelete={handleDeleteVideo}
+                    onEdit={isAdmin ? handleEditVideo : undefined}
+                    onDelete={isAdmin ? handleDeleteVideo : undefined}
                   />
                 </div>
               ))}
@@ -157,13 +159,16 @@ const CategoryPage = () => {
         onClose={() => setIsLoginModalOpen(false)}
       />
       
-      <StepFormModal
-        isOpen={isAddModalOpen}
-        onClose={handleModalClose}
-        onVideoAdded={handleVideoAdded}
-        onVideoUpdated={handleVideoUpdated}
-        editingVideo={editingVideo}
-      />
+      {/* Modal de adicionar/editar - apenas para admin */}
+      {isAdmin && (
+        <StepFormModal
+          isOpen={isAddModalOpen}
+          onClose={handleModalClose}
+          onVideoAdded={handleVideoAdded}
+          onVideoUpdated={handleVideoUpdated}
+          editingVideo={editingVideo}
+        />
+      )}
 
       <VideoViewModal
         video={selectedVideo}

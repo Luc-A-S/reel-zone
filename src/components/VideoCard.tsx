@@ -15,7 +15,7 @@ interface VideoCardProps {
 }
 
 const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
-  const { isAuthenticated } = useAuth();
+  const { isAdmin } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isMobile = useIsMobile();
 
@@ -67,8 +67,8 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
             </div>
           </div>
           
-          {/* Action buttons */}
-          {isAuthenticated && (
+          {/* Action buttons - apenas para admin */}
+          {isAdmin && (
             <div className={`absolute ${isMobile ? 'top-1 right-1' : 'top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4'} flex gap-1 opacity-0 group-hover:opacity-100 smooth-transition`}>
               <button
                 onClick={handleEdit}
@@ -125,12 +125,15 @@ const VideoCard = ({ video, onClick, onEdit, onDelete }: VideoCardProps) => {
         )}
       </div>
 
-      <DeleteConfirmDialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleConfirmDelete}
-        title={video.title}
-      />
+      {/* Dialog de confirmação de delete - apenas para admin */}
+      {isAdmin && (
+        <DeleteConfirmDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={handleConfirmDelete}
+          title={video.title}
+        />
+      )}
     </>
   );
 };

@@ -15,7 +15,7 @@ const FeaturedContent = ({ onVideoClick, onVideoEdit, onFeaturedChange }: Featur
   const [featuredVideo, setFeaturedVideo] = useState<Video | null>(null);
   const [allVideos, setAllVideos] = useState<Video[]>([]);
   const [showVideoSelector, setShowVideoSelector] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     loadFeaturedVideo();
@@ -45,11 +45,11 @@ const FeaturedContent = ({ onVideoClick, onVideoEdit, onFeaturedChange }: Featur
     onFeaturedChange();
   };
 
-  if (!featuredVideo && !isAuthenticated) {
+  if (!featuredVideo && !isAdmin) {
     return null;
   }
 
-  if (!featuredVideo && isAuthenticated) {
+  if (!featuredVideo && isAdmin) {
     return (
       <div className="relative mb-8">
         <div className="h-[300px] sm:h-[400px] lg:h-[500px] bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center">
@@ -148,7 +148,7 @@ const FeaturedContent = ({ onVideoClick, onVideoEdit, onFeaturedChange }: Featur
                   Assistir
                 </button>
                 
-                {isAuthenticated && (
+                {isAdmin && (
                   <>
                     <button
                       onClick={() => onVideoEdit(featuredVideo)}
@@ -187,8 +187,8 @@ const FeaturedContent = ({ onVideoClick, onVideoEdit, onFeaturedChange }: Featur
         </div>
       </div>
 
-      {/* Video Selector Modal */}
-      {showVideoSelector && (
+      {/* Video Selector Modal - apenas para admin */}
+      {showVideoSelector && isAdmin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowVideoSelector(false)} />
           

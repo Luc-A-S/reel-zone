@@ -1,9 +1,18 @@
 
+import { useAuth } from '../hooks/useAuth';
+
 interface FloatingFavoritesButtonProps {
   onClick: () => void;
 }
 
 const FloatingFavoritesButton = ({ onClick }: FloatingFavoritesButtonProps) => {
+  const { isGuest } = useAuth();
+
+  // Não mostrar o botão para usuários não logados
+  if (isGuest) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
       <button
